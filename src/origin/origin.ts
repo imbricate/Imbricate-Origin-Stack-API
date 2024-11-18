@@ -5,17 +5,17 @@
  */
 
 import { IImbricateDatabaseManager, IImbricateOrigin, IImbricateStaticManager } from "@imbricate/core";
-import { ImbricateFileSystemDatabaseManager } from "../database/manager";
-import { ImbricateFileSystemTextManager } from "../text/manager";
+import { ImbricateStackAPIDatabaseManager } from "../database/manager";
+import { ImbricateStackAPITextManager } from "../text/manager";
 import { digestString } from "../util/digest";
 
-export class ImbricateFileSystemOrigin implements IImbricateOrigin {
+export class ImbricateStackAPIOrigin implements IImbricateOrigin {
 
     public static create(
         payloads: Record<string, any>,
-    ): ImbricateFileSystemOrigin {
+    ): ImbricateStackAPIOrigin {
 
-        return new ImbricateFileSystemOrigin(
+        return new ImbricateStackAPIOrigin(
             payloads,
         );
     }
@@ -36,16 +36,17 @@ export class ImbricateFileSystemOrigin implements IImbricateOrigin {
 
     public getDatabaseManager(): IImbricateDatabaseManager {
 
-        return ImbricateFileSystemDatabaseManager.create(
+        return ImbricateStackAPIDatabaseManager.create(
             this.payloads.author,
             this.payloads.basePath,
         );
     }
 
-    public getTextManager(): ImbricateFileSystemTextManager {
+    public getTextManager(): ImbricateStackAPITextManager {
 
-        return ImbricateFileSystemTextManager.create(
+        return ImbricateStackAPITextManager.create(
             this.payloads.basePath,
+            this.payloads.author,
         );
     }
 

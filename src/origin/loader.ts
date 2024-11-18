@@ -5,13 +5,13 @@
  */
 
 import { ImbricateOriginLoader, OriginPayload } from "@imbricate/core";
-import { ImbricateFileSystemOrigin } from "./origin";
+import { ImbricateStackAPIOrigin } from "./origin";
 
 export const originLoader: ImbricateOriginLoader = (
     payload: OriginPayload,
 ) => {
 
-    return ImbricateFileSystemOrigin.create(
+    return ImbricateStackAPIOrigin.create(
         payload,
     );
 };

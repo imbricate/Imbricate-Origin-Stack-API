@@ -5,46 +5,54 @@
  */
 
 import { IImbricateText, IImbricateTextManager } from "@imbricate/core";
-import { digestString } from "../util/digest";
-import { getTextByUniqueIdentifier } from "./action";
-import { ImbricateFileSystemText } from "./text";
+import { ImbricateStackAPIAuthentication } from "../definition";
+import { axiosClient } from "../util/client";
+import { buildHeader } from "../util/header";
+import { joinUrl } from "../util/path-joiner";
+import { ImbricateStackAPIText } from "./text";
 
-export class ImbricateFileSystemTextManager implements IImbricateTextManager {
+export class ImbricateStackAPITextManager implements IImbricateTextManager {
 
     public static create(
         basePath: string,
-    ): ImbricateFileSystemTextManager {
+        authentication: ImbricateStackAPIAuthentication,
+    ): ImbricateStackAPITextManager {
 
-        return new ImbricateFileSystemTextManager(
+        return new ImbricateStackAPITextManager(
             basePath,
+            authentication,
         );
     }
 
     private readonly _basePath: string;
+    private readonly _authentication: ImbricateStackAPIAuthentication;
 
     private constructor(
         basePath: string,
+        authentication: ImbricateStackAPIAuthentication,
     ) {
 
         this._basePath = basePath;
+        this._authentication = authentication;
     }
 
     public async getText(
         uniqueIdentifier: string,
     ): Promise<IImbricateText | null> {
 
-        const textContent: string | null = await getTextByUniqueIdentifier(
+        const response = await axiosClient.get(joinUrl(
             this._basePath,
+            "text",
             uniqueIdentifier,
-        );
+        ), {
+            headers: buildHeader(this._authentication),
+        });
 
-        if (!textContent) {
-            return null;
-        }
+        const content: string = response.data.content;
 
-        const text: IImbricateText = ImbricateFileSystemText.createFromContent(
+        const text: IImbricateText = ImbricateStackAPIText.createFromContent(
             uniqueIdentifier,
-            textContent,
+            content,
         );
 
         return text;
@@ -52,18 +60,22 @@ export class ImbricateFileSystemTextManager implements IImbricateTextManager {
 
     public async createText(
         content: string,
-        uniqueIdentifier?: string,
     ): Promise<IImbricateText> {
 
-        const textUniqueIdentifier: string =
-            uniqueIdentifier ?? digestString(content);
-
-        const text: IImbricateText = await ImbricateFileSystemText.createAndSave(
+        const response = await axiosClient.post(joinUrl(
             this._basePath,
+            "create-text",
+        ), {
+            content,
+        }, {
+            headers: buildHeader(this._authentication),
+        });
+
+        const textUniqueIdentifier: string = response.data.textUniqueIdentifier;
+
+        return ImbricateStackAPIText.create(
             textUniqueIdentifier,
             content,
         );
-
-        return text;
     }
 }

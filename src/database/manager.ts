@@ -70,7 +70,7 @@ export class ImbricateStackAPIDatabaseManager implements IImbricateDatabaseManag
         });
 
         const databaseName = response.data.databaseName;
-        const schema = response.data.schema;
+        const databaseSchema = response.data.databaseSchema;
 
         return ImbricateStackAPIDatabase.create(
 
@@ -78,7 +78,7 @@ export class ImbricateStackAPIDatabaseManager implements IImbricateDatabaseManag
             this._authentication,
             uniqueIdentifier,
             databaseName,
-            schema,
+            databaseSchema,
         );
     }
 

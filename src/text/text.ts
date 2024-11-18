@@ -5,19 +5,15 @@
  */
 
 import { IImbricateText } from "@imbricate/core";
-import { putText } from "./action";
 
-export class ImbricateFileSystemText implements IImbricateText {
+export class ImbricateStackAPIText implements IImbricateText {
 
-    public static async createAndSave(
-        basePath: string,
+    public static async create(
         textUniqueIdentifier: string,
         content: string,
-    ): Promise<ImbricateFileSystemText> {
+    ): Promise<ImbricateStackAPIText> {
 
-        await putText(basePath, textUniqueIdentifier, content);
-
-        return new ImbricateFileSystemText(
+        return new ImbricateStackAPIText(
             textUniqueIdentifier,
             content,
         );
@@ -26,9 +22,9 @@ export class ImbricateFileSystemText implements IImbricateText {
     public static createFromContent(
         textUniqueIdentifier: string,
         content: string,
-    ): ImbricateFileSystemText {
+    ): ImbricateStackAPIText {
 
-        return new ImbricateFileSystemText(
+        return new ImbricateStackAPIText(
             textUniqueIdentifier,
             content,
         );
