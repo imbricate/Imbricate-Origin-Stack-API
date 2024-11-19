@@ -37,8 +37,8 @@ export class ImbricateStackAPIOrigin implements IImbricateOrigin {
     public getDatabaseManager(): IImbricateDatabaseManager {
 
         return ImbricateStackAPIDatabaseManager.create(
-            this.payloads.author,
             this.payloads.basePath,
+            this.payloads.authentication,
         );
     }
 
@@ -46,7 +46,7 @@ export class ImbricateStackAPIOrigin implements IImbricateOrigin {
 
         return ImbricateStackAPITextManager.create(
             this.payloads.basePath,
-            this.payloads.author,
+            this.payloads.authentication,
         );
     }
 
