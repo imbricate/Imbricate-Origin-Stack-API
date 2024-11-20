@@ -54,7 +54,7 @@ export class ImbricateStackAPIDatabaseManager implements IImbricateDatabaseManag
                 this._authentication,
                 database.databaseUniqueIdentifier,
                 database.databaseName,
-                database.schema,
+                database.databaseSchema,
             );
         });
     }

@@ -18,7 +18,7 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
         databaseUniqueIdentifier: string,
         documentUniqueIdentifier: string,
         schema: ImbricateDatabaseSchema,
-        properties?: DocumentProperties,
+        properties: DocumentProperties,
     ): ImbricateStackAPIDocument {
 
         return new ImbricateStackAPIDocument(
@@ -37,7 +37,7 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
     private readonly _documentUniqueIdentifier: string;
     private readonly _schema: ImbricateDatabaseSchema;
 
-    private _properties: DocumentProperties | null;
+    private _properties: DocumentProperties;
 
     private constructor(
         basePath: string,
@@ -45,7 +45,7 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
         databaseUniqueIdentifier: string,
         documentUniqueIdentifier: string,
         schema: ImbricateDatabaseSchema,
-        properties?: DocumentProperties,
+        properties: DocumentProperties,
     ) {
 
         this._basePath = basePath;
@@ -54,11 +54,15 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
         this._documentUniqueIdentifier = documentUniqueIdentifier;
         this._schema = schema;
 
-        this._properties = properties || null;
+        this._properties = properties;
     }
 
     public get uniqueIdentifier(): string {
         return this._documentUniqueIdentifier;
+    }
+
+    public get properties(): DocumentProperties {
+        return this._properties;
     }
 
     public async putProperty(
@@ -66,10 +70,8 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
         value: DocumentPropertyValue<IMBRICATE_PROPERTY_TYPE>,
     ): Promise<DocumentEditRecord[]> {
 
-        const properties: DocumentProperties = await this.getProperties();
-
         return await this.putProperties({
-            ...properties,
+            ...this.properties,
             [key]: value,
         });
     }
@@ -91,25 +93,5 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
         });
 
         return response.data.editRecords;
-    }
-
-    public async getProperties(
-    ): Promise<DocumentProperties> {
-
-        if (this._properties !== null) {
-            return this._properties;
-        }
-
-        const response = await axiosClient.get(joinUrl(
-            this._basePath,
-            "database",
-            this._databaseUniqueIdentifier,
-            "document",
-            this._documentUniqueIdentifier,
-        ), {
-            headers: buildHeader(this._authentication),
-        });
-
-        return response.data.properties;
     }
 }
