@@ -4,10 +4,13 @@
  * @description Origin
  */
 
-import { IImbricateDatabaseManager, IImbricateOrigin, IImbricateStaticManager } from "@imbricate/core";
+import { IImbricateDatabaseManager, IImbricateOrigin, IImbricateStaticManager, ImbricateSearchResult } from "@imbricate/core";
 import { ImbricateStackAPIDatabaseManager } from "../database/manager";
 import { ImbricateStackAPITextManager } from "../text/manager";
+import { axiosClient } from "../util/client";
 import { digestString } from "../util/digest";
+import { buildHeader } from "../util/header";
+import { joinUrl } from "../util/path-joiner";
 
 export class ImbricateStackAPIOrigin implements IImbricateOrigin {
 
@@ -53,5 +56,21 @@ export class ImbricateStackAPIOrigin implements IImbricateOrigin {
     public getStaticManager(): IImbricateStaticManager {
 
         throw new Error("Method not implemented.");
+    }
+
+    public async search(
+        keyword: string,
+    ): Promise<ImbricateSearchResult> {
+
+        const response = await axiosClient.post(joinUrl(
+            this.payloads.basePath,
+            "search",
+        ), {
+            keyword,
+        }, {
+            headers: buildHeader(this.payloads.authentication),
+        });
+
+        return response.data.result;
     }
 }
