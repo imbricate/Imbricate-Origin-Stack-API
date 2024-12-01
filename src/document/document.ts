@@ -17,7 +17,6 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
         authentication: ImbricateStackAPIAuthentication,
         databaseUniqueIdentifier: string,
         documentUniqueIdentifier: string,
-        schema: ImbricateDatabaseSchema,
         properties: DocumentProperties,
     ): ImbricateStackAPIDocument {
 
@@ -26,7 +25,6 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
             authentication,
             databaseUniqueIdentifier,
             documentUniqueIdentifier,
-            schema,
             properties,
         );
     }
@@ -35,7 +33,6 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
     private readonly _authentication: ImbricateStackAPIAuthentication;
     private readonly _databaseUniqueIdentifier: string;
     private readonly _documentUniqueIdentifier: string;
-    private readonly _schema: ImbricateDatabaseSchema;
 
     private _properties: DocumentProperties;
 
@@ -44,7 +41,6 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
         authentication: ImbricateStackAPIAuthentication,
         databaseUniqueIdentifier: string,
         documentUniqueIdentifier: string,
-        schema: ImbricateDatabaseSchema,
         properties: DocumentProperties,
     ) {
 
@@ -52,7 +48,6 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
         this._authentication = authentication;
         this._databaseUniqueIdentifier = databaseUniqueIdentifier;
         this._documentUniqueIdentifier = documentUniqueIdentifier;
-        this._schema = schema;
 
         this._properties = properties;
     }

@@ -4,7 +4,7 @@
  * @description Database
  */
 
-import { DocumentProperties, IImbricateDocument, ImbricateDocumentQuery } from "@imbricate/core";
+import { DatabaseAnnotationValue, DatabaseAnnotations, DatabaseEditRecord, DocumentProperties, IImbricateDocument, ImbricateDocumentQuery } from "@imbricate/core";
 import { IImbricateDatabase } from "@imbricate/core/database/interface";
 import { ImbricateDatabaseSchema } from "@imbricate/core/database/schema";
 import { ImbricateStackAPIAuthentication } from "../definition";
@@ -38,6 +38,7 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
     public readonly uniqueIdentifier: string;
     public readonly databaseName: string;
     public schema: ImbricateDatabaseSchema;
+    public annotations: DatabaseAnnotations;
 
     private constructor(
         basePath: string,
@@ -57,9 +58,9 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
 
     public async putSchema(
         schema: ImbricateDatabaseSchema,
-    ): Promise<void> {
+    ): Promise<DatabaseEditRecord[]> {
 
-        await axiosClient.put(joinUrl(
+        const response = await axiosClient.put(joinUrl(
             this._basePath,
             "database",
             this.uniqueIdentifier,
@@ -69,6 +70,8 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
         }, {
             headers: buildHeader(this._authentication),
         });
+
+        return response.data.editRecords;
     }
 
     public async createDocument(
@@ -93,7 +96,6 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
             this._authentication,
             this.uniqueIdentifier,
             documentUniqueIdentifier,
-            this.schema,
             properties,
         );
     }
@@ -119,9 +121,26 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
             this._authentication,
             this.uniqueIdentifier,
             uniqueIdentifier,
-            this.schema,
             properties,
         );
+    }
+
+    public async countDocuments(
+        query: ImbricateDocumentQuery,
+    ): Promise<number> {
+
+        const response = await axiosClient.post(joinUrl(
+            this._basePath,
+            "database",
+            this.uniqueIdentifier,
+            "count-documents",
+        ), {
+            query,
+        }, {
+            headers: buildHeader(this._authentication),
+        });
+
+        return response.data.count;
     }
 
     public async queryDocuments(
@@ -148,9 +167,65 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
                 this._authentication,
                 this.uniqueIdentifier,
                 document.uniqueIdentifier,
-                this.schema,
                 document.properties,
             );
         });
+    }
+
+    public async removeDocument(
+        uniqueIdentifier: string,
+    ): Promise<void> {
+
+        await axiosClient.delete(joinUrl(
+            this._basePath,
+            "database",
+            this.uniqueIdentifier,
+            "document",
+            uniqueIdentifier,
+        ), {
+            headers: buildHeader(this._authentication),
+        });
+    }
+
+    public async putAnnotation(
+        namespace: string,
+        identifier: string,
+        value: DatabaseAnnotationValue,
+    ): Promise<DatabaseEditRecord[]> {
+
+        const response = await axiosClient.post(joinUrl(
+            this._basePath,
+            "database",
+            this.uniqueIdentifier,
+            "put-annotation",
+        ), {
+            namespace,
+            identifier,
+            value,
+        }, {
+            headers: buildHeader(this._authentication),
+        });
+
+        return response.data.editRecords;
+    }
+
+    public async deleteAnnotation(
+        namespace: string,
+        identifier: string,
+    ): Promise<DatabaseEditRecord[]> {
+
+        const response = await axiosClient.post(joinUrl(
+            this._basePath,
+            "database",
+            this.uniqueIdentifier,
+            "delete-annotation",
+        ), {
+            namespace,
+            identifier,
+        }, {
+            headers: buildHeader(this._authentication),
+        });
+
+        return response.data.editRecords;
     }
 }

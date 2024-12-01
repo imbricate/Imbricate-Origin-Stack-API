@@ -109,4 +109,17 @@ export class ImbricateStackAPIDatabaseManager implements IImbricateDatabaseManag
             responseSchema,
         );
     }
+
+    public async removeDatabase(uniqueIdentifier: string): Promise<void> {
+
+        await axiosClient.delete(joinUrl(
+            this._basePath,
+            "database",
+            uniqueIdentifier,
+        ), {
+            headers: buildHeader(this._authentication),
+        });
+
+        return;
+    }
 }
