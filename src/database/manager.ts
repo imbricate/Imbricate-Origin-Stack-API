@@ -55,6 +55,7 @@ export class ImbricateStackAPIDatabaseManager implements IImbricateDatabaseManag
                 database.databaseUniqueIdentifier,
                 database.databaseName,
                 database.databaseSchema,
+                database.databaseAnnotations,
             );
         });
     }
@@ -71,6 +72,7 @@ export class ImbricateStackAPIDatabaseManager implements IImbricateDatabaseManag
 
         const databaseName = response.data.databaseName;
         const databaseSchema = response.data.databaseSchema;
+        const databaseAnnotations = response.data.databaseAnnotations;
 
         return ImbricateStackAPIDatabase.create(
 
@@ -79,6 +81,7 @@ export class ImbricateStackAPIDatabaseManager implements IImbricateDatabaseManag
             uniqueIdentifier,
             databaseName,
             databaseSchema,
+            databaseAnnotations,
         );
     }
 
@@ -99,6 +102,7 @@ export class ImbricateStackAPIDatabaseManager implements IImbricateDatabaseManag
 
         const databaseUniqueIdentifier = response.data.databaseUniqueIdentifier;
         const responseSchema = response.data.schema;
+        const responseAnnotations = response.data.annotations;
 
         return ImbricateStackAPIDatabase.create(
 
@@ -107,6 +111,7 @@ export class ImbricateStackAPIDatabaseManager implements IImbricateDatabaseManag
             databaseUniqueIdentifier,
             databaseName,
             responseSchema,
+            responseAnnotations,
         );
     }
 

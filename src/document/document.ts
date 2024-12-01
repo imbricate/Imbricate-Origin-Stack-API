@@ -4,7 +4,7 @@
  * @description Document
  */
 
-import { DocumentEditRecord, DocumentProperties, DocumentPropertyKey, DocumentPropertyValue, IImbricateDocument, IMBRICATE_PROPERTY_TYPE, ImbricateDatabaseSchema } from "@imbricate/core";
+import { DocumentAnnotationValue, DocumentAnnotations, DocumentEditRecord, DocumentProperties, DocumentPropertyKey, DocumentPropertyValue, IImbricateDocument, IMBRICATE_PROPERTY_TYPE } from "@imbricate/core";
 import { ImbricateStackAPIAuthentication } from "../definition";
 import { axiosClient } from "../util/client";
 import { buildHeader } from "../util/header";
@@ -18,6 +18,7 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
         databaseUniqueIdentifier: string,
         documentUniqueIdentifier: string,
         properties: DocumentProperties,
+        annotations: DocumentAnnotations,
     ): ImbricateStackAPIDocument {
 
         return new ImbricateStackAPIDocument(
@@ -26,6 +27,7 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
             databaseUniqueIdentifier,
             documentUniqueIdentifier,
             properties,
+            annotations,
         );
     }
 
@@ -35,6 +37,7 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
     private readonly _documentUniqueIdentifier: string;
 
     private _properties: DocumentProperties;
+    private _annotations: DocumentAnnotations;
 
     private constructor(
         basePath: string,
@@ -42,6 +45,7 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
         databaseUniqueIdentifier: string,
         documentUniqueIdentifier: string,
         properties: DocumentProperties,
+        annotations: DocumentAnnotations,
     ) {
 
         this._basePath = basePath;
@@ -50,6 +54,7 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
         this._documentUniqueIdentifier = documentUniqueIdentifier;
 
         this._properties = properties;
+        this._annotations = annotations;
     }
 
     public get uniqueIdentifier(): string {
@@ -58,6 +63,10 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
 
     public get properties(): DocumentProperties {
         return this._properties;
+    }
+
+    public get annotations(): DocumentAnnotations {
+        return this._annotations;
     }
 
     public async putProperty(
@@ -83,6 +92,52 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
             this._documentUniqueIdentifier,
         ), {
             properties,
+        }, {
+            headers: buildHeader(this._authentication),
+        });
+
+        return response.data.editRecords;
+    }
+
+    public async putAnnotation(
+        namespace: string,
+        identifier: string,
+        value: DocumentAnnotationValue,
+    ): Promise<DocumentEditRecord[]> {
+
+        const response = await axiosClient.post(joinUrl(
+            this._basePath,
+            "database",
+            this._databaseUniqueIdentifier,
+            "document",
+            this._documentUniqueIdentifier,
+            "put-annotation",
+        ), {
+            namespace,
+            identifier,
+            value,
+        }, {
+            headers: buildHeader(this._authentication),
+        });
+
+        return response.data.editRecords;
+    }
+
+    public async deleteAnnotation(
+        namespace: string,
+        identifier: string,
+    ): Promise<DocumentEditRecord[]> {
+
+        const response = await axiosClient.post(joinUrl(
+            this._basePath,
+            "database",
+            this._databaseUniqueIdentifier,
+            "document",
+            this._documentUniqueIdentifier,
+            "delete-annotation",
+        ), {
+            namespace,
+            identifier,
         }, {
             headers: buildHeader(this._authentication),
         });

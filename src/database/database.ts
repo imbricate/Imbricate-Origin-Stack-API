@@ -4,7 +4,7 @@
  * @description Database
  */
 
-import { DatabaseAnnotationValue, DatabaseAnnotations, DatabaseEditRecord, DocumentProperties, IImbricateDocument, ImbricateDocumentQuery } from "@imbricate/core";
+import { DatabaseAnnotationValue, DatabaseAnnotations, DatabaseEditRecord, DocumentAnnotations, DocumentProperties, IImbricateDocument, ImbricateDocumentQuery } from "@imbricate/core";
 import { IImbricateDatabase } from "@imbricate/core/database/interface";
 import { ImbricateDatabaseSchema } from "@imbricate/core/database/schema";
 import { ImbricateStackAPIAuthentication } from "../definition";
@@ -21,6 +21,7 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
         uniqueIdentifier: string,
         databaseName: string,
         schema: ImbricateDatabaseSchema,
+        annotations: DatabaseAnnotations,
     ): ImbricateStackAPIDatabase {
 
         return new ImbricateStackAPIDatabase(
@@ -29,6 +30,7 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
             uniqueIdentifier,
             databaseName,
             schema,
+            annotations,
         );
     }
 
@@ -46,6 +48,7 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
         uniqueIdentifier: string,
         databaseName: string,
         schema: ImbricateDatabaseSchema,
+        annotations: DatabaseAnnotations,
     ) {
 
         this._basePath = basePath;
@@ -54,6 +57,7 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
         this.uniqueIdentifier = uniqueIdentifier;
         this.databaseName = databaseName;
         this.schema = schema;
+        this.annotations = annotations;
     }
 
     public async putSchema(
@@ -97,6 +101,7 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
             this.uniqueIdentifier,
             documentUniqueIdentifier,
             properties,
+            {},
         );
     }
 
@@ -115,6 +120,7 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
         });
 
         const properties: DocumentProperties = response.data.properties;
+        const annotations: DocumentAnnotations = response.data.annotations;
 
         return ImbricateStackAPIDocument.create(
             this._basePath,
@@ -122,6 +128,7 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
             this.uniqueIdentifier,
             uniqueIdentifier,
             properties,
+            annotations,
         );
     }
 
@@ -168,6 +175,7 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
                 this.uniqueIdentifier,
                 document.uniqueIdentifier,
                 document.properties,
+                document.annotations,
             );
         });
     }
