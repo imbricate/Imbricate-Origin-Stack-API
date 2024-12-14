@@ -99,6 +99,22 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
         return response.data.editRecords;
     }
 
+    public async getEditRecords(): Promise<DocumentEditRecord[]> {
+
+        const response = await axiosClient.get(joinUrl(
+            this._basePath,
+            "database",
+            this._databaseUniqueIdentifier,
+            "document",
+            this._documentUniqueIdentifier,
+            "edit-records",
+        ), {
+            headers: buildHeader(this._authentication),
+        });
+
+        return response.data.editRecords;
+    }
+
     public async putAnnotation(
         namespace: string,
         identifier: string,
