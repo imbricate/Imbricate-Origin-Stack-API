@@ -20,6 +20,7 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
         authentication: ImbricateStackAPIAuthentication,
         uniqueIdentifier: string,
         databaseName: string,
+        databaseVersion: number,
         schema: ImbricateDatabaseSchema,
         annotations: DatabaseAnnotations,
     ): ImbricateStackAPIDatabase {
@@ -29,6 +30,7 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
             authentication,
             uniqueIdentifier,
             databaseName,
+            databaseVersion,
             schema,
             annotations,
         );
@@ -39,6 +41,8 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
 
     public readonly uniqueIdentifier: string;
     public readonly databaseName: string;
+    public readonly databaseVersion: number;
+
     public schema: ImbricateDatabaseSchema;
     public annotations: DatabaseAnnotations;
 
@@ -47,6 +51,7 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
         authentication: ImbricateStackAPIAuthentication,
         uniqueIdentifier: string,
         databaseName: string,
+        databaseVersion: number,
         schema: ImbricateDatabaseSchema,
         annotations: DatabaseAnnotations,
     ) {
@@ -56,6 +61,8 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
 
         this.uniqueIdentifier = uniqueIdentifier;
         this.databaseName = databaseName;
+        this.databaseVersion = databaseVersion;
+
         this.schema = schema;
         this.annotations = annotations;
     }
@@ -100,6 +107,7 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
             this._authentication,
             this.uniqueIdentifier,
             documentUniqueIdentifier,
+            response.data.documentVersion,
             properties,
             {},
         );
@@ -127,6 +135,7 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
             this._authentication,
             this.uniqueIdentifier,
             uniqueIdentifier,
+            response.data.documentVersion,
             properties,
             annotations,
         );
@@ -174,6 +183,7 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
                 this._authentication,
                 this.uniqueIdentifier,
                 document.uniqueIdentifier,
+                document.documentVersion,
                 document.properties,
                 document.annotations,
             );

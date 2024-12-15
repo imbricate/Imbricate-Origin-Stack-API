@@ -17,6 +17,7 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
         authentication: ImbricateStackAPIAuthentication,
         databaseUniqueIdentifier: string,
         documentUniqueIdentifier: string,
+        documentVersion: number,
         properties: DocumentProperties,
         annotations: DocumentAnnotations,
     ): ImbricateStackAPIDocument {
@@ -26,6 +27,7 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
             authentication,
             databaseUniqueIdentifier,
             documentUniqueIdentifier,
+            documentVersion,
             properties,
             annotations,
         );
@@ -36,6 +38,8 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
     private readonly _databaseUniqueIdentifier: string;
     private readonly _documentUniqueIdentifier: string;
 
+    private _documentVersion: number;
+
     private _properties: DocumentProperties;
     private _annotations: DocumentAnnotations;
 
@@ -44,6 +48,7 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
         authentication: ImbricateStackAPIAuthentication,
         databaseUniqueIdentifier: string,
         documentUniqueIdentifier: string,
+        documentVersion: number,
         properties: DocumentProperties,
         annotations: DocumentAnnotations,
     ) {
@@ -53,12 +58,18 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
         this._databaseUniqueIdentifier = databaseUniqueIdentifier;
         this._documentUniqueIdentifier = documentUniqueIdentifier;
 
+        this._documentVersion = documentVersion;
+
         this._properties = properties;
         this._annotations = annotations;
     }
 
     public get uniqueIdentifier(): string {
         return this._documentUniqueIdentifier;
+    }
+
+    public get documentVersion(): number {
+        return this._documentVersion;
     }
 
     public get properties(): DocumentProperties {
