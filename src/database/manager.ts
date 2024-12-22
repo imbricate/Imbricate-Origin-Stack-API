@@ -4,7 +4,7 @@
  * @description Manager
  */
 
-import { IImbricateDatabase, IImbricateDatabaseManager, ImbricateDatabaseManagerFullFeatureBase, ImbricateDatabaseManagerListDatabasesOutcome, ImbricateDatabaseSchemaForCreation } from "@imbricate/core";
+import { IImbricateDatabaseManager, ImbricateDatabaseManagerCreateDatabaseOutcome, ImbricateDatabaseManagerFullFeatureBase, ImbricateDatabaseManagerGetDatabaseOutcome, ImbricateDatabaseManagerListDatabasesOutcome, ImbricateDatabaseManagerRemoveDatabaseOutcome, ImbricateDatabaseSchemaForCreation, rebuildImbricateDatabaseManagerCreateDatabaseSymbol, rebuildImbricateDatabaseManagerGetDatabaseSymbol, rebuildImbricateDatabaseManagerListDatabasesSymbol, rebuildImbricateDatabaseManagerRemoveDatabaseSymbol } from "@imbricate/core";
 import { ImbricateStackAPIAuthentication } from "../definition";
 import { axiosClient } from "../util/client";
 import { buildHeader } from "../util/header";
@@ -40,100 +40,136 @@ export class ImbricateStackAPIDatabaseManager extends ImbricateDatabaseManagerFu
 
     public async listDatabases(): Promise<ImbricateDatabaseManagerListDatabasesOutcome> {
 
-        const response = await axiosClient.get(joinUrl(
-            this._basePath,
-            "list-database",
-        ), {
-            headers: buildHeader(this._authentication),
-        });
+        try {
 
-        const databases = response.data.databases;
+            const response = await axiosClient.get(joinUrl(
+                this._basePath,
+                "list-database",
+            ), {
+                headers: buildHeader(this._authentication),
+            });
 
-        return {
-            databases: databases.map((database: any) => {
+            const databases = response.data.databases;
 
-                return ImbricateStackAPIDatabase.create(
-                    this._basePath,
-                    this._authentication,
-                    database.databaseUniqueIdentifier,
-                    database.databaseName,
-                    database.databaseVersion,
-                    database.databaseSchema,
-                    database.databaseAnnotations,
-                );
-            }),
-        };
+            return {
+                databases: databases.map((database: any) => {
+
+                    return ImbricateStackAPIDatabase.create(
+                        this._basePath,
+                        this._authentication,
+                        database.databaseUniqueIdentifier,
+                        database.databaseName,
+                        database.databaseVersion,
+                        database.databaseSchema,
+                        database.databaseAnnotations,
+                    );
+                }),
+            };
+        } catch (error) {
+
+            return rebuildImbricateDatabaseManagerListDatabasesSymbol(error.response.data);
+        }
     }
 
-    public async getDatabase(uniqueIdentifier: string): Promise<IImbricateDatabase | null> {
+    public async getDatabase(
+        uniqueIdentifier: string,
+    ): Promise<ImbricateDatabaseManagerGetDatabaseOutcome> {
 
-        const response = await axiosClient.get(joinUrl(
-            this._basePath,
-            "database",
-            uniqueIdentifier,
-        ), {
-            headers: buildHeader(this._authentication),
-        });
+        try {
 
-        const databaseName = response.data.databaseName;
-        const databaseVersion = response.data.databaseVersion;
-        const databaseSchema = response.data.databaseSchema;
-        const databaseAnnotations = response.data.databaseAnnotations;
+            const response = await axiosClient.get(joinUrl(
+                this._basePath,
+                "database",
+                uniqueIdentifier,
+            ), {
+                headers: buildHeader(this._authentication),
+            });
 
-        return ImbricateStackAPIDatabase.create(
+            const databaseName = response.data.databaseName;
+            const databaseVersion = response.data.databaseVersion;
+            const databaseSchema = response.data.databaseSchema;
+            const databaseAnnotations = response.data.databaseAnnotations;
 
-            this._basePath,
-            this._authentication,
-            uniqueIdentifier,
-            databaseName,
-            databaseVersion,
-            databaseSchema,
-            databaseAnnotations,
-        );
+            const database = ImbricateStackAPIDatabase.create(
+
+                this._basePath,
+                this._authentication,
+                uniqueIdentifier,
+                databaseName,
+                databaseVersion,
+                databaseSchema,
+                databaseAnnotations,
+            );
+
+            return {
+                database,
+            };
+        } catch (error) {
+
+            return rebuildImbricateDatabaseManagerGetDatabaseSymbol(error.response.data);
+        }
     }
 
     public async createDatabase(
         databaseName: string,
         schema: ImbricateDatabaseSchemaForCreation,
-    ): Promise<IImbricateDatabase> {
+    ): Promise<ImbricateDatabaseManagerCreateDatabaseOutcome> {
 
-        const response = await axiosClient.post(joinUrl(
-            this._basePath,
-            "create-database",
-        ), {
-            databaseName,
-            schema,
-        }, {
-            headers: buildHeader(this._authentication),
-        });
+        try {
 
-        const databaseUniqueIdentifier = response.data.databaseUniqueIdentifier;
-        const databaseVersion = response.data.databaseVersion;
-        const responseSchema = response.data.schema;
-        const responseAnnotations = response.data.annotations;
+            const response = await axiosClient.post(joinUrl(
+                this._basePath,
+                "create-database",
+            ), {
+                databaseName,
+                schema,
+            }, {
+                headers: buildHeader(this._authentication),
+            });
 
-        return ImbricateStackAPIDatabase.create(
+            const databaseUniqueIdentifier = response.data.databaseUniqueIdentifier;
+            const databaseVersion = response.data.databaseVersion;
+            const responseSchema = response.data.schema;
+            const responseAnnotations = response.data.annotations;
 
-            this._basePath,
-            this._authentication,
-            databaseUniqueIdentifier,
-            databaseName,
-            databaseVersion,
-            responseSchema,
-            responseAnnotations,
-        );
+            const database = ImbricateStackAPIDatabase.create(
+
+                this._basePath,
+                this._authentication,
+                databaseUniqueIdentifier,
+                databaseName,
+                databaseVersion,
+                responseSchema,
+                responseAnnotations,
+            );
+
+            return {
+                database,
+            };
+        } catch (error) {
+
+            return rebuildImbricateDatabaseManagerCreateDatabaseSymbol(error.response.data);
+        }
     }
 
-    public async removeDatabase(uniqueIdentifier: string): Promise<void> {
+    public async removeDatabase(uniqueIdentifier: string): Promise<ImbricateDatabaseManagerRemoveDatabaseOutcome> {
 
-        await axiosClient.delete(joinUrl(
-            this._basePath,
-            "database",
-            uniqueIdentifier,
-        ), {
-            headers: buildHeader(this._authentication),
-        });
+        try {
 
-        return;
+            await axiosClient.delete(joinUrl(
+                this._basePath,
+                "database",
+                uniqueIdentifier,
+            ), {
+                headers: buildHeader(this._authentication),
+            });
+
+            return {
+                success: true,
+            };
+        } catch (error) {
+
+            return rebuildImbricateDatabaseManagerRemoveDatabaseSymbol(error.response.data);
+        }
     }
 }

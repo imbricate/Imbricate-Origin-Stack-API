@@ -4,7 +4,7 @@
  * @description Origin
  */
 
-import { IImbricateDatabaseManager, IImbricateOrigin, IImbricateStaticManager, ImbricateOriginFullFeatureBase, ImbricateSearchResult } from "@imbricate/core";
+import { IImbricateDatabaseManager, IImbricateOrigin, IImbricateStaticManager, ImbricateOriginFullFeatureBase, ImbricateOriginSearchOutcome, rebuildImbricateOriginSearchSymbol } from "@imbricate/core";
 import { ImbricateStackAPIDatabaseManager } from "../database/manager";
 import { ImbricateStackAPITextManager } from "../text/manager";
 import { axiosClient } from "../util/client";
@@ -62,17 +62,25 @@ export class ImbricateStackAPIOrigin extends ImbricateOriginFullFeatureBase impl
 
     public async search(
         keyword: string,
-    ): Promise<ImbricateSearchResult> {
+    ): Promise<ImbricateOriginSearchOutcome> {
 
-        const response = await axiosClient.post(joinUrl(
-            this.payloads.basePath,
-            "search",
-        ), {
-            keyword,
-        }, {
-            headers: buildHeader(this.payloads.authentication),
-        });
+        try {
 
-        return response.data.result;
+            const response = await axiosClient.post(joinUrl(
+                this.payloads.basePath,
+                "search",
+            ), {
+                keyword,
+            }, {
+                headers: buildHeader(this.payloads.authentication),
+            });
+
+            return {
+                items: response.data.items,
+            };
+        } catch (error) {
+
+            return rebuildImbricateOriginSearchSymbol(error.response.data);
+        }
     }
 }

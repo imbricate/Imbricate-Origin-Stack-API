@@ -4,7 +4,7 @@
  * @description Database
  */
 
-import { DatabaseAnnotationValue, DatabaseAnnotations, DatabaseEditRecord, DocumentAnnotations, DocumentProperties, IImbricateDocument, ImbricateDatabaseCreateDocumentOutcome, ImbricateDatabaseFullFeatureBase, ImbricateDatabasePutSchemaOutcome, ImbricateDocumentQuery, rebuildImbricateDatabaseCreateDocumentSymbol, rebuildImbricateDatabasePutSchemaSymbol } from "@imbricate/core";
+import { DatabaseAnnotationValue, DatabaseAnnotations, DatabaseEditRecord, DocumentAnnotations, DocumentProperties, IImbricateDocument, ImbricateDatabaseAddEditRecordsOutcome, ImbricateDatabaseCountDocumentsOutcome, ImbricateDatabaseCreateDocumentOutcome, ImbricateDatabaseDeleteAnnotationOutcome, ImbricateDatabaseFullFeatureBase, ImbricateDatabaseGetDocumentOutcome, ImbricateDatabaseGetEditRecordsOutcome, ImbricateDatabasePutAnnotationOutcome, ImbricateDatabasePutSchemaOutcome, ImbricateDatabaseQueryDocumentsOutcome, ImbricateDatabaseRemoveDocumentOutcome, ImbricateDocumentQuery, rebuildImbricateDatabaseCountDocumentsSymbol, rebuildImbricateDatabaseCreateDocumentSymbol, rebuildImbricateDatabaseDeleteAnnotationSymbol, rebuildImbricateDatabaseGetDocumentSymbol, rebuildImbricateDatabaseGetEditRecordsSymbol, rebuildImbricateDatabasePutAnnotationSymbol, rebuildImbricateDatabasePutSchemaSymbol, rebuildImbricateDatabaseQueryDocumentsSymbol, rebuildImbricateDatabaseRemoveDocumentSymbol } from "@imbricate/core";
 import { IImbricateDatabase } from "@imbricate/core/database/interface";
 import { ImbricateDatabaseSchema } from "@imbricate/core/database/schema";
 import { ImbricateStackAPIAuthentication } from "../definition";
@@ -20,7 +20,7 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
         authentication: ImbricateStackAPIAuthentication,
         uniqueIdentifier: string,
         databaseName: string,
-        databaseVersion: number,
+        databaseVersion: string,
         schema: ImbricateDatabaseSchema,
         annotations: DatabaseAnnotations,
     ): ImbricateStackAPIDatabase {
@@ -133,135 +133,218 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
 
     public async getDocument(
         uniqueIdentifier: string,
-    ): Promise<IImbricateDocument | null> {
+    ): Promise<ImbricateDatabaseGetDocumentOutcome> {
 
-        const response = await axiosClient.get(joinUrl(
-            this._basePath,
-            "database",
-            this.uniqueIdentifier,
-            "document",
-            uniqueIdentifier,
-        ), {
-            headers: buildHeader(this._authentication),
-        });
+        try {
 
-        const properties: DocumentProperties = response.data.properties;
-        const annotations: DocumentAnnotations = response.data.annotations;
+            const response = await axiosClient.get(joinUrl(
+                this._basePath,
+                "database",
+                this.uniqueIdentifier,
+                "document",
+                uniqueIdentifier,
+            ), {
+                headers: buildHeader(this._authentication),
+            });
 
-        return ImbricateStackAPIDocument.create(
-            this._basePath,
-            this._authentication,
-            this.uniqueIdentifier,
-            uniqueIdentifier,
-            response.data.documentVersion,
-            properties,
-            annotations,
-        );
+            const properties: DocumentProperties = response.data.properties;
+            const annotations: DocumentAnnotations = response.data.annotations;
+
+            const document = ImbricateStackAPIDocument.create(
+                this._basePath,
+                this._authentication,
+                this.uniqueIdentifier,
+                uniqueIdentifier,
+                response.data.documentVersion,
+                properties,
+                annotations,
+            );
+
+            return {
+                document,
+            };
+        } catch (error) {
+
+            return rebuildImbricateDatabaseGetDocumentSymbol(error.response.data);
+        }
     }
 
     public async countDocuments(
         query: ImbricateDocumentQuery,
-    ): Promise<number> {
+    ): Promise<ImbricateDatabaseCountDocumentsOutcome> {
 
-        const response = await axiosClient.post(joinUrl(
-            this._basePath,
-            "database",
-            this.uniqueIdentifier,
-            "count-documents",
-        ), {
-            query,
-        }, {
-            headers: buildHeader(this._authentication),
-        });
+        try {
 
-        return response.data.count;
+            const response = await axiosClient.post(joinUrl(
+                this._basePath,
+                "database",
+                this.uniqueIdentifier,
+                "count-documents",
+            ), {
+                query,
+            }, {
+                headers: buildHeader(this._authentication),
+            });
+
+            return {
+                count: response.data.count,
+            };
+        } catch (error) {
+
+            return rebuildImbricateDatabaseCountDocumentsSymbol(error.response.data);
+        }
     }
 
     public async queryDocuments(
         query: ImbricateDocumentQuery,
-    ): Promise<IImbricateDocument[]> {
+    ): Promise<ImbricateDatabaseQueryDocumentsOutcome> {
 
-        const response = await axiosClient.post(joinUrl(
-            this._basePath,
-            "database",
-            this.uniqueIdentifier,
-            "query-documents",
-        ), {
-            query,
-        }, {
-            headers: buildHeader(this._authentication),
-        });
+        try {
 
-        const documents = response.data.documents;
-
-        return documents.map((document: any) => {
-
-            return ImbricateStackAPIDocument.create(
+            const response = await axiosClient.post(joinUrl(
                 this._basePath,
-                this._authentication,
+                "database",
                 this.uniqueIdentifier,
-                document.uniqueIdentifier,
-                document.documentVersion,
-                document.properties,
-                document.annotations,
-            );
-        });
+                "query-documents",
+            ), {
+                query,
+            }, {
+                headers: buildHeader(this._authentication),
+            });
+
+            const documents = response.data.documents;
+
+            const result: IImbricateDocument[] = documents.map((document: any) => {
+
+                return ImbricateStackAPIDocument.create(
+                    this._basePath,
+                    this._authentication,
+                    this.uniqueIdentifier,
+                    document.uniqueIdentifier,
+                    document.documentVersion,
+                    document.properties,
+                    document.annotations,
+                );
+            });
+
+            return {
+                documents: result,
+            };
+        } catch (error) {
+
+            return rebuildImbricateDatabaseQueryDocumentsSymbol(error.response.data);
+        }
     }
 
     public async removeDocument(
         uniqueIdentifier: string,
-    ): Promise<void> {
+    ): Promise<ImbricateDatabaseRemoveDocumentOutcome> {
 
-        await axiosClient.delete(joinUrl(
-            this._basePath,
-            "database",
-            this.uniqueIdentifier,
-            "document",
-            uniqueIdentifier,
-        ), {
-            headers: buildHeader(this._authentication),
-        });
+        try {
+
+            await axiosClient.delete(joinUrl(
+                this._basePath,
+                "database",
+                this.uniqueIdentifier,
+                "document",
+                uniqueIdentifier,
+            ), {
+                headers: buildHeader(this._authentication),
+            });
+
+            return {
+                success: true,
+            };
+        } catch (error) {
+
+            return rebuildImbricateDatabaseRemoveDocumentSymbol(error.response.data);
+        }
+    }
+
+    public async addEditRecords(
+        _editRecords: DatabaseEditRecord[],
+    ): Promise<ImbricateDatabaseAddEditRecordsOutcome> {
+
+        throw new Error("Method not implemented.");
+    }
+
+    public async getEditRecords(): Promise<ImbricateDatabaseGetEditRecordsOutcome> {
+
+        try {
+
+            const response = await axiosClient.get(joinUrl(
+                this._basePath,
+                "database",
+                this.uniqueIdentifier,
+                "edit-records",
+            ), {
+                headers: buildHeader(this._authentication),
+            });
+
+            return {
+                editRecords: response.data.editRecords,
+            };
+        } catch (error) {
+
+            return rebuildImbricateDatabaseGetEditRecordsSymbol(error.response.data);
+        }
     }
 
     public async putAnnotation(
         namespace: string,
         identifier: string,
         value: DatabaseAnnotationValue,
-    ): Promise<DatabaseEditRecord[]> {
+    ): Promise<ImbricateDatabasePutAnnotationOutcome> {
 
-        const response = await axiosClient.post(joinUrl(
-            this._basePath,
-            "database",
-            this.uniqueIdentifier,
-            "put-annotation",
-        ), {
-            namespace,
-            identifier,
-            value,
-        }, {
-            headers: buildHeader(this._authentication),
-        });
+        try {
 
-        return response.data.editRecords;
+            const response = await axiosClient.post(joinUrl(
+                this._basePath,
+                "database",
+                this.uniqueIdentifier,
+                "put-annotation",
+            ), {
+                namespace,
+                identifier,
+                value,
+            }, {
+                headers: buildHeader(this._authentication),
+            });
+
+            return {
+                editRecords: response.data.editRecords,
+            };
+        } catch (error) {
+
+            return rebuildImbricateDatabasePutAnnotationSymbol(error.response.data);
+        }
     }
 
     public async deleteAnnotation(
         namespace: string,
         identifier: string,
-    ): Promise<DatabaseEditRecord[]> {
+    ): Promise<ImbricateDatabaseDeleteAnnotationOutcome> {
 
-        const response = await axiosClient.post(joinUrl(
-            this._basePath,
-            "database",
-            this.uniqueIdentifier,
-            "delete-annotation",
-        ), {
-            namespace,
-            identifier,
-        }, {
-            headers: buildHeader(this._authentication),
-        });
+        try {
 
-        return response.data.editRecords;
+            const response = await axiosClient.post(joinUrl(
+                this._basePath,
+                "database",
+                this.uniqueIdentifier,
+                "delete-annotation",
+            ), {
+                namespace,
+                identifier,
+            }, {
+                headers: buildHeader(this._authentication),
+            });
+
+            return {
+                editRecords: response.data.editRecords,
+            };
+        } catch (error) {
+
+            return rebuildImbricateDatabaseDeleteAnnotationSymbol(error.response.data);
+        }
     }
 }
