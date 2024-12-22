@@ -4,52 +4,66 @@
  * @description Text
  */
 
-import { IImbricateText } from "@imbricate/core";
+import { IImbricateText, ImbricateAuthor, ImbricateTextFullFeatureBase, ImbricateTextGetContentOutcome } from "@imbricate/core";
 
-export class ImbricateStackAPIText implements IImbricateText {
+export class ImbricateStackAPIText extends ImbricateTextFullFeatureBase implements IImbricateText {
 
     public static async create(
         textUniqueIdentifier: string,
         content: string,
+        author: ImbricateAuthor,
     ): Promise<ImbricateStackAPIText> {
 
         return new ImbricateStackAPIText(
             textUniqueIdentifier,
             content,
+            author,
         );
     }
 
     public static createFromContent(
         textUniqueIdentifier: string,
         content: string,
+        author: ImbricateAuthor,
     ): ImbricateStackAPIText {
 
         return new ImbricateStackAPIText(
             textUniqueIdentifier,
             content,
+            author,
         );
     }
 
     private readonly _textUniqueIdentifier: string;
 
     private _content: string;
+    private _author: ImbricateAuthor;
 
     private constructor(
         textUniqueIdentifier: string,
         content: string,
+        author: ImbricateAuthor,
     ) {
 
-        this._textUniqueIdentifier = textUniqueIdentifier;
+        super();
 
+        this._textUniqueIdentifier = textUniqueIdentifier;
         this._content = content;
+        this._author = author;
     }
 
     public get uniqueIdentifier(): string {
         return this._textUniqueIdentifier;
     }
 
-    public async getContent(): Promise<string> {
+    public get author(): ImbricateAuthor {
+        return this._author;
+    }
 
-        return this._content;
+    public async getContent(): Promise<ImbricateTextGetContentOutcome> {
+
+        return {
+            content: this._content,
+        };
     }
 }

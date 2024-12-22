@@ -4,14 +4,14 @@
  * @description Manager
  */
 
-import { IImbricateText, IImbricateTextManager } from "@imbricate/core";
+import { IImbricateText, IImbricateTextManager, ImbricateTextManagerFullFeatureBase, ImbricateTextManagerGetTextOutcome } from "@imbricate/core";
 import { ImbricateStackAPIAuthentication } from "../definition";
 import { axiosClient } from "../util/client";
 import { buildHeader } from "../util/header";
 import { joinUrl } from "../util/path-joiner";
 import { ImbricateStackAPIText } from "./text";
 
-export class ImbricateStackAPITextManager implements IImbricateTextManager {
+export class ImbricateStackAPITextManager extends ImbricateTextManagerFullFeatureBase implements IImbricateTextManager {
 
     public static create(
         basePath: string,
@@ -32,30 +32,43 @@ export class ImbricateStackAPITextManager implements IImbricateTextManager {
         authentication: ImbricateStackAPIAuthentication,
     ) {
 
+        super();
+
         this._basePath = basePath;
         this._authentication = authentication;
     }
 
     public async getText(
         uniqueIdentifier: string,
-    ): Promise<IImbricateText | null> {
+    ): Promise<ImbricateTextManagerGetTextOutcome> {
 
-        const response = await axiosClient.get(joinUrl(
-            this._basePath,
-            "text",
-            uniqueIdentifier,
-        ), {
-            headers: buildHeader(this._authentication),
-        });
+        try {
 
-        const content: string = response.data.content;
+            const response = await axiosClient.get(joinUrl(
+                this._basePath,
+                "text",
+                uniqueIdentifier,
+            ), {
+                headers: buildHeader(this._authentication),
+            });
 
-        const text: IImbricateText = ImbricateStackAPIText.createFromContent(
-            uniqueIdentifier,
-            content,
-        );
+            const content: string = response.data.content;
 
-        return text;
+            const text: IImbricateText = ImbricateStackAPIText.createFromContent(
+                uniqueIdentifier,
+                content,
+            );
+
+            return text;
+        } catch (error) {
+
+            switch (error.response.status) {
+                case 404:
+                    return null;
+                default:
+                    throw error;
+            }
+        }
     }
 
     public async createText(
