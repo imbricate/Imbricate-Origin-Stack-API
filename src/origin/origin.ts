@@ -4,7 +4,7 @@
  * @description Origin
  */
 
-import { IImbricateDatabaseManager, IImbricateOrigin, IImbricateStaticManager, ImbricateSearchResult } from "@imbricate/core";
+import { IImbricateDatabaseManager, IImbricateOrigin, IImbricateStaticManager, ImbricateOriginFullFeatureBase, ImbricateSearchResult } from "@imbricate/core";
 import { ImbricateStackAPIDatabaseManager } from "../database/manager";
 import { ImbricateStackAPITextManager } from "../text/manager";
 import { axiosClient } from "../util/client";
@@ -12,7 +12,7 @@ import { digestString } from "../util/digest";
 import { buildHeader } from "../util/header";
 import { joinUrl } from "../util/path-joiner";
 
-export class ImbricateStackAPIOrigin implements IImbricateOrigin {
+export class ImbricateStackAPIOrigin extends ImbricateOriginFullFeatureBase implements IImbricateOrigin {
 
     public static create(
         payloads: Record<string, any>,
@@ -26,6 +26,8 @@ export class ImbricateStackAPIOrigin implements IImbricateOrigin {
     private constructor(
         payloads: Record<string, any>,
     ) {
+
+        super();
 
         this.payloads = payloads;
     }

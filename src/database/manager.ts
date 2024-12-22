@@ -4,14 +4,14 @@
  * @description Manager
  */
 
-import { IImbricateDatabase, IImbricateDatabaseManager, ImbricateDatabaseSchemaForCreation } from "@imbricate/core";
+import { IImbricateDatabase, IImbricateDatabaseManager, ImbricateDatabaseManagerFullFeatureBase, ImbricateDatabaseManagerListDatabasesOutcome, ImbricateDatabaseSchemaForCreation } from "@imbricate/core";
 import { ImbricateStackAPIAuthentication } from "../definition";
 import { axiosClient } from "../util/client";
 import { buildHeader } from "../util/header";
 import { joinUrl } from "../util/path-joiner";
 import { ImbricateStackAPIDatabase } from "./database";
 
-export class ImbricateStackAPIDatabaseManager implements IImbricateDatabaseManager {
+export class ImbricateStackAPIDatabaseManager extends ImbricateDatabaseManagerFullFeatureBase implements IImbricateDatabaseManager {
 
     public static create(
         basePath: string,
@@ -32,11 +32,13 @@ export class ImbricateStackAPIDatabaseManager implements IImbricateDatabaseManag
         authentication: ImbricateStackAPIAuthentication,
     ) {
 
+        super();
+
         this._basePath = basePath;
         this._authentication = authentication;
     }
 
-    public async listDatabases(): Promise<IImbricateDatabase[]> {
+    public async listDatabases(): Promise<ImbricateDatabaseManagerListDatabasesOutcome> {
 
         const response = await axiosClient.get(joinUrl(
             this._basePath,
@@ -47,18 +49,20 @@ export class ImbricateStackAPIDatabaseManager implements IImbricateDatabaseManag
 
         const databases = response.data.databases;
 
-        return databases.map((database: any) => {
+        return {
+            databases: databases.map((database: any) => {
 
-            return ImbricateStackAPIDatabase.create(
-                this._basePath,
-                this._authentication,
-                database.databaseUniqueIdentifier,
-                database.databaseName,
-                database.databaseVersion,
-                database.databaseSchema,
-                database.databaseAnnotations,
-            );
-        });
+                return ImbricateStackAPIDatabase.create(
+                    this._basePath,
+                    this._authentication,
+                    database.databaseUniqueIdentifier,
+                    database.databaseName,
+                    database.databaseVersion,
+                    database.databaseSchema,
+                    database.databaseAnnotations,
+                );
+            }),
+        };
     }
 
     public async getDatabase(uniqueIdentifier: string): Promise<IImbricateDatabase | null> {
