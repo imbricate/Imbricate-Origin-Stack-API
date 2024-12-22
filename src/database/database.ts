@@ -10,6 +10,7 @@ import { ImbricateDatabaseSchema } from "@imbricate/core/database/schema";
 import { ImbricateStackAPIAuthentication } from "../definition";
 import { ImbricateStackAPIDocument } from "../document/document";
 import { axiosClient } from "../util/client";
+import { getAxiosErrorSymbol } from "../util/error";
 import { buildHeader } from "../util/header";
 import { joinUrl } from "../util/path-joiner";
 
@@ -91,7 +92,9 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
             };
         } catch (error) {
 
-            return rebuildImbricateDatabasePutSchemaSymbol(error.response.data);
+            return rebuildImbricateDatabasePutSchemaSymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
 
@@ -127,7 +130,9 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
             };
         } catch (error) {
 
-            return rebuildImbricateDatabaseCreateDocumentSymbol(error.response.data);
+            return rebuildImbricateDatabaseCreateDocumentSymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
 
@@ -165,7 +170,9 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
             };
         } catch (error) {
 
-            return rebuildImbricateDatabaseGetDocumentSymbol(error.response.data);
+            return rebuildImbricateDatabaseGetDocumentSymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
 
@@ -191,7 +198,9 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
             };
         } catch (error) {
 
-            return rebuildImbricateDatabaseCountDocumentsSymbol(error.response.data);
+            return rebuildImbricateDatabaseCountDocumentsSymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
 
@@ -232,7 +241,9 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
             };
         } catch (error) {
 
-            return rebuildImbricateDatabaseQueryDocumentsSymbol(error.response.data);
+            return rebuildImbricateDatabaseQueryDocumentsSymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
 
@@ -257,7 +268,9 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
             };
         } catch (error) {
 
-            return rebuildImbricateDatabaseRemoveDocumentSymbol(error.response.data);
+            return rebuildImbricateDatabaseRemoveDocumentSymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
 
@@ -286,7 +299,9 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
             };
         } catch (error) {
 
-            return rebuildImbricateDatabaseGetEditRecordsSymbol(error.response.data);
+            return rebuildImbricateDatabaseGetEditRecordsSymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
 
@@ -316,7 +331,9 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
             };
         } catch (error) {
 
-            return rebuildImbricateDatabasePutAnnotationSymbol(error.response.data);
+            return rebuildImbricateDatabasePutAnnotationSymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
 
@@ -344,7 +361,9 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
             };
         } catch (error) {
 
-            return rebuildImbricateDatabaseDeleteAnnotationSymbol(error.response.data);
+            return rebuildImbricateDatabaseDeleteAnnotationSymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
 }

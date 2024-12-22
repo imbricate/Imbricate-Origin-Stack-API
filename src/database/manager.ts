@@ -7,6 +7,7 @@
 import { IImbricateDatabaseManager, ImbricateDatabaseManagerCreateDatabaseOutcome, ImbricateDatabaseManagerFullFeatureBase, ImbricateDatabaseManagerGetDatabaseOutcome, ImbricateDatabaseManagerListDatabasesOutcome, ImbricateDatabaseManagerRemoveDatabaseOutcome, ImbricateDatabaseSchemaForCreation, rebuildImbricateDatabaseManagerCreateDatabaseSymbol, rebuildImbricateDatabaseManagerGetDatabaseSymbol, rebuildImbricateDatabaseManagerListDatabasesSymbol, rebuildImbricateDatabaseManagerRemoveDatabaseSymbol } from "@imbricate/core";
 import { ImbricateStackAPIAuthentication } from "../definition";
 import { axiosClient } from "../util/client";
+import { getAxiosErrorSymbol } from "../util/error";
 import { buildHeader } from "../util/header";
 import { joinUrl } from "../util/path-joiner";
 import { ImbricateStackAPIDatabase } from "./database";
@@ -67,7 +68,9 @@ export class ImbricateStackAPIDatabaseManager extends ImbricateDatabaseManagerFu
             };
         } catch (error) {
 
-            return rebuildImbricateDatabaseManagerListDatabasesSymbol(error.response.data);
+            return rebuildImbricateDatabaseManagerListDatabasesSymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
 
@@ -106,7 +109,9 @@ export class ImbricateStackAPIDatabaseManager extends ImbricateDatabaseManagerFu
             };
         } catch (error) {
 
-            return rebuildImbricateDatabaseManagerGetDatabaseSymbol(error.response.data);
+            return rebuildImbricateDatabaseManagerGetDatabaseSymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
 
@@ -148,11 +153,15 @@ export class ImbricateStackAPIDatabaseManager extends ImbricateDatabaseManagerFu
             };
         } catch (error) {
 
-            return rebuildImbricateDatabaseManagerCreateDatabaseSymbol(error.response.data);
+            return rebuildImbricateDatabaseManagerCreateDatabaseSymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
 
-    public async removeDatabase(uniqueIdentifier: string): Promise<ImbricateDatabaseManagerRemoveDatabaseOutcome> {
+    public async removeDatabase(
+        uniqueIdentifier: string,
+    ): Promise<ImbricateDatabaseManagerRemoveDatabaseOutcome> {
 
         try {
 
@@ -169,7 +178,9 @@ export class ImbricateStackAPIDatabaseManager extends ImbricateDatabaseManagerFu
             };
         } catch (error) {
 
-            return rebuildImbricateDatabaseManagerRemoveDatabaseSymbol(error.response.data);
+            return rebuildImbricateDatabaseManagerRemoveDatabaseSymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
 }

@@ -7,6 +7,7 @@
 import { DocumentAnnotationValue, DocumentAnnotations, DocumentEditRecord, DocumentProperties, DocumentPropertyKey, DocumentPropertyValue, IImbricateDocument, IMBRICATE_PROPERTY_TYPE, ImbricateDocumentAddEditRecordsOutcome, ImbricateDocumentDeleteAnnotationOutcome, ImbricateDocumentFullFeatureBase, ImbricateDocumentGetEditRecordsOutcome, ImbricateDocumentPutAnnotationOutcome, ImbricateDocumentPutPropertyOutcome, rebuildImbricateDocumentDeleteAnnotationSymbol, rebuildImbricateDocumentGetEditRecordsSymbol, rebuildImbricateDocumentPutAnnotationSymbol, rebuildImbricateDocumentPutPropertySymbol } from "@imbricate/core";
 import { ImbricateStackAPIAuthentication } from "../definition";
 import { axiosClient } from "../util/client";
+import { getAxiosErrorSymbol } from "../util/error";
 import { buildHeader } from "../util/header";
 import { joinUrl } from "../util/path-joiner";
 
@@ -116,7 +117,9 @@ export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase 
             };
         } catch (error) {
 
-            return rebuildImbricateDocumentPutPropertySymbol(error.response.data);
+            return rebuildImbricateDocumentPutPropertySymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
 
@@ -147,7 +150,9 @@ export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase 
             };
         } catch (error) {
 
-            return rebuildImbricateDocumentGetEditRecordsSymbol(error.response.data);
+            return rebuildImbricateDocumentGetEditRecordsSymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
 
@@ -179,7 +184,9 @@ export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase 
             };
         } catch (error) {
 
-            return rebuildImbricateDocumentPutAnnotationSymbol(error.response.data);
+            return rebuildImbricateDocumentPutAnnotationSymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
 
@@ -209,7 +216,9 @@ export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase 
             };
         } catch (error) {
 
-            return rebuildImbricateDocumentDeleteAnnotationSymbol(error.response.data);
+            return rebuildImbricateDocumentDeleteAnnotationSymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
 }
