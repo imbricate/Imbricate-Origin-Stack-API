@@ -4,7 +4,7 @@
  * @description Manager
  */
 
-import { IImbricateText, IImbricateTextManager, ImbricateTextManagerFullFeatureBase, ImbricateTextManagerGetTextOutcome } from "@imbricate/core";
+import { IImbricateText, IImbricateTextManager, ImbricateAuthor, ImbricateTextManagerCreateTextOutcome, ImbricateTextManagerFullFeatureBase, ImbricateTextManagerGetTextOutcome, rebuildImbricateTextManagerCreateTextSymbol, rebuildImbricateTextManagerGetTextSymbol } from "@imbricate/core";
 import { ImbricateStackAPIAuthentication } from "../definition";
 import { axiosClient } from "../util/client";
 import { buildHeader } from "../util/header";
@@ -53,42 +53,52 @@ export class ImbricateStackAPITextManager extends ImbricateTextManagerFullFeatur
             });
 
             const content: string = response.data.content;
+            const author: ImbricateAuthor = response.data.author;
 
             const text: IImbricateText = ImbricateStackAPIText.createFromContent(
                 uniqueIdentifier,
                 content,
+                author,
             );
 
-            return text;
+            return {
+                text,
+            };
         } catch (error) {
 
-            switch (error.response.status) {
-                case 404:
-                    return null;
-                default:
-                    throw error;
-            }
+            return rebuildImbricateTextManagerGetTextSymbol(error.response.data);
         }
     }
-
     public async createText(
         content: string,
-    ): Promise<IImbricateText> {
+    ): Promise<ImbricateTextManagerCreateTextOutcome> {
 
-        const response = await axiosClient.post(joinUrl(
-            this._basePath,
-            "create-text",
-        ), {
-            content,
-        }, {
-            headers: buildHeader(this._authentication),
-        });
+        try {
 
-        const textUniqueIdentifier: string = response.data.textUniqueIdentifier;
+            const response = await axiosClient.post(joinUrl(
+                this._basePath,
+                "create-text",
+            ), {
+                content,
+            }, {
+                headers: buildHeader(this._authentication),
+            });
 
-        return ImbricateStackAPIText.create(
-            textUniqueIdentifier,
-            content,
-        );
+            const textUniqueIdentifier: string = response.data.textUniqueIdentifier;
+            const author: ImbricateAuthor = response.data.author;
+
+            const text: IImbricateText = await ImbricateStackAPIText.create(
+                textUniqueIdentifier,
+                content,
+                author,
+            );
+
+            return {
+                text,
+            };
+        } catch (error) {
+
+            return rebuildImbricateTextManagerCreateTextSymbol(error.response.data);
+        }
     }
 }
