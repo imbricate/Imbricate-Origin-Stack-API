@@ -4,7 +4,7 @@
  * @description Database
  */
 
-import { DatabaseAnnotationValue, DatabaseAnnotations, DatabaseEditRecord, DocumentAnnotations, DocumentProperties, IImbricateDocument, ImbricateDocumentQuery } from "@imbricate/core";
+import { DatabaseAnnotationValue, DatabaseAnnotations, DatabaseEditRecord, DocumentAnnotations, DocumentProperties, IImbricateDocument, ImbricateDatabaseCreateDocumentOutcome, ImbricateDatabaseFullFeatureBase, ImbricateDatabasePutSchemaOutcome, ImbricateDocumentQuery, rebuildImbricateDatabaseCreateDocumentSymbol, rebuildImbricateDatabasePutSchemaSymbol } from "@imbricate/core";
 import { IImbricateDatabase } from "@imbricate/core/database/interface";
 import { ImbricateDatabaseSchema } from "@imbricate/core/database/schema";
 import { ImbricateStackAPIAuthentication } from "../definition";
@@ -13,7 +13,7 @@ import { axiosClient } from "../util/client";
 import { buildHeader } from "../util/header";
 import { joinUrl } from "../util/path-joiner";
 
-export class ImbricateStackAPIDatabase implements IImbricateDatabase {
+export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase implements IImbricateDatabase {
 
     public static create(
         basePath: string,
@@ -41,7 +41,7 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
 
     public readonly uniqueIdentifier: string;
     public readonly databaseName: string;
-    public readonly databaseVersion: number;
+    public readonly databaseVersion: string;
 
     public schema: ImbricateDatabaseSchema;
     public annotations: DatabaseAnnotations;
@@ -51,10 +51,12 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
         authentication: ImbricateStackAPIAuthentication,
         uniqueIdentifier: string,
         databaseName: string,
-        databaseVersion: number,
+        databaseVersion: string,
         schema: ImbricateDatabaseSchema,
         annotations: DatabaseAnnotations,
     ) {
+
+        super();
 
         this._basePath = basePath;
         this._authentication = authentication;
@@ -69,48 +71,64 @@ export class ImbricateStackAPIDatabase implements IImbricateDatabase {
 
     public async putSchema(
         schema: ImbricateDatabaseSchema,
-    ): Promise<DatabaseEditRecord[]> {
+    ): Promise<ImbricateDatabasePutSchemaOutcome> {
 
-        const response = await axiosClient.put(joinUrl(
-            this._basePath,
-            "database",
-            this.uniqueIdentifier,
-            "schema",
-        ), {
-            schema,
-        }, {
-            headers: buildHeader(this._authentication),
-        });
+        try {
 
-        return response.data.editRecords;
+            const response = await axiosClient.put(joinUrl(
+                this._basePath,
+                "database",
+                this.uniqueIdentifier,
+                "schema",
+            ), {
+                schema,
+            }, {
+                headers: buildHeader(this._authentication),
+            });
+
+            return {
+                editRecords: response.data.editRecords,
+            };
+        } catch (error) {
+
+            return rebuildImbricateDatabasePutSchemaSymbol(error.response.data);
+        }
     }
 
     public async createDocument(
         properties: DocumentProperties,
-    ): Promise<IImbricateDocument> {
+    ): Promise<ImbricateDatabaseCreateDocumentOutcome> {
 
-        const response = await axiosClient.post(joinUrl(
-            this._basePath,
-            "database",
-            this.uniqueIdentifier,
-            "create-document",
-        ), {
-            properties,
-        }, {
-            headers: buildHeader(this._authentication),
-        });
+        try {
 
-        const documentUniqueIdentifier: string = response.data.documentUniqueIdentifier;
+            const response = await axiosClient.post(joinUrl(
+                this._basePath,
+                "database",
+                this.uniqueIdentifier,
+                "create-document",
+            ), {
+                properties,
+            }, {
+                headers: buildHeader(this._authentication),
+            });
 
-        return ImbricateStackAPIDocument.create(
-            this._basePath,
-            this._authentication,
-            this.uniqueIdentifier,
-            documentUniqueIdentifier,
-            response.data.documentVersion,
-            properties,
-            {},
-        );
+            const documentUniqueIdentifier: string = response.data.documentUniqueIdentifier;
+
+            return {
+                document: ImbricateStackAPIDocument.create(
+                    this._basePath,
+                    this._authentication,
+                    this.uniqueIdentifier,
+                    documentUniqueIdentifier,
+                    response.data.documentVersion,
+                    properties,
+                    {},
+                ),
+            };
+        } catch (error) {
+
+            return rebuildImbricateDatabaseCreateDocumentSymbol(error.response.data);
+        }
     }
 
     public async getDocument(

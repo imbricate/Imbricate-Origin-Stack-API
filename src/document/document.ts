@@ -4,20 +4,20 @@
  * @description Document
  */
 
-import { DocumentAnnotationValue, DocumentAnnotations, DocumentEditRecord, DocumentProperties, DocumentPropertyKey, DocumentPropertyValue, IImbricateDocument, IMBRICATE_PROPERTY_TYPE } from "@imbricate/core";
+import { DocumentAnnotationValue, DocumentAnnotations, DocumentEditRecord, DocumentProperties, DocumentPropertyKey, DocumentPropertyValue, IImbricateDocument, IMBRICATE_PROPERTY_TYPE, ImbricateDocumentAddEditRecordsOutcome, ImbricateDocumentDeleteAnnotationOutcome, ImbricateDocumentFullFeatureBase, ImbricateDocumentGetEditRecordsOutcome, ImbricateDocumentPutAnnotationOutcome, ImbricateDocumentPutPropertyOutcome, rebuildImbricateDocumentDeleteAnnotationSymbol, rebuildImbricateDocumentGetEditRecordsSymbol, rebuildImbricateDocumentPutAnnotationSymbol, rebuildImbricateDocumentPutPropertySymbol } from "@imbricate/core";
 import { ImbricateStackAPIAuthentication } from "../definition";
 import { axiosClient } from "../util/client";
 import { buildHeader } from "../util/header";
 import { joinUrl } from "../util/path-joiner";
 
-export class ImbricateStackAPIDocument implements IImbricateDocument {
+export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase implements IImbricateDocument {
 
     public static create(
         basePath: string,
         authentication: ImbricateStackAPIAuthentication,
         databaseUniqueIdentifier: string,
         documentUniqueIdentifier: string,
-        documentVersion: number,
+        documentVersion: string,
         properties: DocumentProperties,
         annotations: DocumentAnnotations,
     ): ImbricateStackAPIDocument {
@@ -38,7 +38,7 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
     private readonly _databaseUniqueIdentifier: string;
     private readonly _documentUniqueIdentifier: string;
 
-    private _documentVersion: number;
+    private _documentVersion: string;
 
     private _properties: DocumentProperties;
     private _annotations: DocumentAnnotations;
@@ -48,10 +48,12 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
         authentication: ImbricateStackAPIAuthentication,
         databaseUniqueIdentifier: string,
         documentUniqueIdentifier: string,
-        documentVersion: number,
+        documentVersion: string,
         properties: DocumentProperties,
         annotations: DocumentAnnotations,
     ) {
+
+        super();
 
         this._basePath = basePath;
         this._authentication = authentication;
@@ -68,7 +70,7 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
         return this._documentUniqueIdentifier;
     }
 
-    public get documentVersion(): number {
+    public get documentVersion(): string {
         return this._documentVersion;
     }
 
@@ -83,7 +85,7 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
     public async putProperty(
         key: DocumentPropertyKey,
         value: DocumentPropertyValue<IMBRICATE_PROPERTY_TYPE>,
-    ): Promise<DocumentEditRecord[]> {
+    ): Promise<ImbricateDocumentPutPropertyOutcome> {
 
         return await this.putProperties({
             ...this.properties,
@@ -93,82 +95,121 @@ export class ImbricateStackAPIDocument implements IImbricateDocument {
 
     public async putProperties(
         properties: DocumentProperties,
-    ): Promise<DocumentEditRecord[]> {
+    ): Promise<ImbricateDocumentPutPropertyOutcome> {
 
-        const response = await axiosClient.put(joinUrl(
-            this._basePath,
-            "database",
-            this._databaseUniqueIdentifier,
-            "document",
-            this._documentUniqueIdentifier,
-        ), {
-            properties,
-        }, {
-            headers: buildHeader(this._authentication),
-        });
+        try {
 
-        return response.data.editRecords;
+            const response = await axiosClient.put(joinUrl(
+                this._basePath,
+                "database",
+                this._databaseUniqueIdentifier,
+                "document",
+                this._documentUniqueIdentifier,
+            ), {
+                properties,
+            }, {
+                headers: buildHeader(this._authentication),
+            });
+
+            return {
+                editRecords: response.data.editRecords,
+            };
+        } catch (error) {
+
+            return rebuildImbricateDocumentPutPropertySymbol(error.response.data);
+        }
     }
 
-    public async getEditRecords(): Promise<DocumentEditRecord[]> {
+    public async addEditRecords(
+        _editRecords: DocumentEditRecord[],
+    ): Promise<ImbricateDocumentAddEditRecordsOutcome> {
 
-        const response = await axiosClient.get(joinUrl(
-            this._basePath,
-            "database",
-            this._databaseUniqueIdentifier,
-            "document",
-            this._documentUniqueIdentifier,
-            "edit-records",
-        ), {
-            headers: buildHeader(this._authentication),
-        });
+        throw new Error("Method not implemented.");
+    }
 
-        return response.data.editRecords;
+    public async getEditRecords(): Promise<ImbricateDocumentGetEditRecordsOutcome> {
+
+        try {
+
+            const response = await axiosClient.get(joinUrl(
+                this._basePath,
+                "database",
+                this._databaseUniqueIdentifier,
+                "document",
+                this._documentUniqueIdentifier,
+                "edit-records",
+            ), {
+                headers: buildHeader(this._authentication),
+            });
+
+            return {
+                editRecords: response.data.editRecords,
+            };
+        } catch (error) {
+
+            return rebuildImbricateDocumentGetEditRecordsSymbol(error.response.data);
+        }
     }
 
     public async putAnnotation(
         namespace: string,
         identifier: string,
         value: DocumentAnnotationValue,
-    ): Promise<DocumentEditRecord[]> {
+    ): Promise<ImbricateDocumentPutAnnotationOutcome> {
 
-        const response = await axiosClient.post(joinUrl(
-            this._basePath,
-            "database",
-            this._databaseUniqueIdentifier,
-            "document",
-            this._documentUniqueIdentifier,
-            "put-annotation",
-        ), {
-            namespace,
-            identifier,
-            value,
-        }, {
-            headers: buildHeader(this._authentication),
-        });
+        try {
 
-        return response.data.editRecords;
+            const response = await axiosClient.post(joinUrl(
+                this._basePath,
+                "database",
+                this._databaseUniqueIdentifier,
+                "document",
+                this._documentUniqueIdentifier,
+                "put-annotation",
+            ), {
+                namespace,
+                identifier,
+                value,
+            }, {
+                headers: buildHeader(this._authentication),
+            });
+
+            return {
+                editRecords: response.data.editRecords,
+            };
+        } catch (error) {
+
+            return rebuildImbricateDocumentPutAnnotationSymbol(error.response.data);
+        }
     }
 
     public async deleteAnnotation(
         namespace: string,
         identifier: string,
-    ): Promise<DocumentEditRecord[]> {
+    ): Promise<ImbricateDocumentDeleteAnnotationOutcome> {
 
-        const response = await axiosClient.post(joinUrl(
-            this._basePath,
-            "database",
-            this._databaseUniqueIdentifier,
-            "document",
-            this._documentUniqueIdentifier,
-            "delete-annotation",
-        ), {
-            namespace,
-            identifier,
-        }, {
-            headers: buildHeader(this._authentication),
-        });
+        try {
 
-        return response.data.editRecords;
+            const response = await axiosClient.post(joinUrl(
+                this._basePath,
+                "database",
+                this._databaseUniqueIdentifier,
+                "document",
+                this._documentUniqueIdentifier,
+                "delete-annotation",
+            ), {
+                namespace,
+                identifier,
+            }, {
+                headers: buildHeader(this._authentication),
+            });
+
+            return {
+                editRecords: response.data.editRecords,
+            };
+        } catch (error) {
+
+            return rebuildImbricateDocumentDeleteAnnotationSymbol(error.response.data);
+        }
     }
 }
