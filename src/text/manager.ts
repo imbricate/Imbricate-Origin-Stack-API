@@ -7,6 +7,7 @@
 import { IImbricateText, IImbricateTextManager, ImbricateAuthor, ImbricateTextManagerCreateTextOutcome, ImbricateTextManagerFullFeatureBase, ImbricateTextManagerGetTextOutcome, rebuildImbricateTextManagerCreateTextSymbol, rebuildImbricateTextManagerGetTextSymbol } from "@imbricate/core";
 import { ImbricateStackAPIAuthentication } from "../definition";
 import { axiosClient } from "../util/client";
+import { getAxiosErrorSymbol } from "../util/error";
 import { buildHeader } from "../util/header";
 import { joinUrl } from "../util/path-joiner";
 import { ImbricateStackAPIText } from "./text";
@@ -66,7 +67,9 @@ export class ImbricateStackAPITextManager extends ImbricateTextManagerFullFeatur
             };
         } catch (error) {
 
-            return rebuildImbricateTextManagerGetTextSymbol(error.response.data);
+            return rebuildImbricateTextManagerGetTextSymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
     public async createText(
@@ -98,7 +101,9 @@ export class ImbricateStackAPITextManager extends ImbricateTextManagerFullFeatur
             };
         } catch (error) {
 
-            return rebuildImbricateTextManagerCreateTextSymbol(error.response.data);
+            return rebuildImbricateTextManagerCreateTextSymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
 }

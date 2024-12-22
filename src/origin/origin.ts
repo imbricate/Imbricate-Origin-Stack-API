@@ -9,6 +9,7 @@ import { ImbricateStackAPIDatabaseManager } from "../database/manager";
 import { ImbricateStackAPITextManager } from "../text/manager";
 import { axiosClient } from "../util/client";
 import { digestString } from "../util/digest";
+import { getAxiosErrorSymbol } from "../util/error";
 import { buildHeader } from "../util/header";
 import { joinUrl } from "../util/path-joiner";
 
@@ -80,7 +81,9 @@ export class ImbricateStackAPIOrigin extends ImbricateOriginFullFeatureBase impl
             };
         } catch (error) {
 
-            return rebuildImbricateOriginSearchSymbol(error.response.data);
+            return rebuildImbricateOriginSearchSymbol(
+                getAxiosErrorSymbol(error),
+            );
         }
     }
 }
