@@ -4,7 +4,7 @@
  * @description Database
  */
 
-import { DatabaseAnnotationValue, DatabaseAnnotations, DatabaseEditRecord, DocumentAnnotations, DocumentProperties, IImbricateDocument, IMBRICATE_DATABASE_FEATURE, ImbricateDatabaseAddEditRecordsOutcome, ImbricateDatabaseCountDocumentsOutcome, ImbricateDatabaseCreateDocumentOutcome, ImbricateDatabaseDeleteAnnotationOutcome, ImbricateDatabaseFullFeatureBase, ImbricateDatabaseGetDocumentOutcome, ImbricateDatabaseGetEditRecordsOutcome, ImbricateDatabasePutAnnotationOutcome, ImbricateDatabasePutSchemaOutcome, ImbricateDatabaseQueryDocumentsOutcome, ImbricateDatabaseRemoveDocumentOutcome, ImbricateDocumentQuery, rebuildImbricateDatabaseCountDocumentsSymbol, rebuildImbricateDatabaseCreateDocumentSymbol, rebuildImbricateDatabaseDeleteAnnotationSymbol, rebuildImbricateDatabaseGetDocumentSymbol, rebuildImbricateDatabaseGetEditRecordsSymbol, rebuildImbricateDatabasePutAnnotationSymbol, rebuildImbricateDatabasePutSchemaSymbol, rebuildImbricateDatabaseQueryDocumentsSymbol, rebuildImbricateDatabaseRemoveDocumentSymbol } from "@imbricate/core";
+import { DatabaseAnnotationValue, DatabaseAnnotations, DatabaseEditRecord, DocumentAnnotations, DocumentProperties, IImbricateDocument, IMBRICATE_DATABASE_FEATURE, IMBRICATE_DOCUMENT_FEATURE, ImbricateDatabaseAddEditRecordsOutcome, ImbricateDatabaseCountDocumentsOutcome, ImbricateDatabaseCreateDocumentOutcome, ImbricateDatabaseDeleteAnnotationOutcome, ImbricateDatabaseFullFeatureBase, ImbricateDatabaseGetDocumentOutcome, ImbricateDatabaseGetEditRecordsOutcome, ImbricateDatabasePutAnnotationOutcome, ImbricateDatabasePutSchemaOutcome, ImbricateDatabaseQueryDocumentsOutcome, ImbricateDatabaseRemoveDocumentOutcome, ImbricateDocumentQuery, rebuildImbricateDatabaseCountDocumentsSymbol, rebuildImbricateDatabaseCreateDocumentSymbol, rebuildImbricateDatabaseDeleteAnnotationSymbol, rebuildImbricateDatabaseGetDocumentSymbol, rebuildImbricateDatabaseGetEditRecordsSymbol, rebuildImbricateDatabasePutAnnotationSymbol, rebuildImbricateDatabasePutSchemaSymbol, rebuildImbricateDatabaseQueryDocumentsSymbol, rebuildImbricateDatabaseRemoveDocumentSymbol } from "@imbricate/core";
 import { IImbricateDatabase } from "@imbricate/core/database/interface";
 import { ImbricateDatabaseSchema } from "@imbricate/core/database/schema";
 import { ImbricateStackAPIAuthentication } from "../definition";
@@ -123,7 +123,7 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
             });
 
             const documentUniqueIdentifier: string = response.data.documentUniqueIdentifier;
-
+            const supportedFeatures: IMBRICATE_DOCUMENT_FEATURE[] = response.data.supportedFeatures;
             return {
                 document: ImbricateStackAPIDocument.create(
                     this._basePath,
@@ -131,6 +131,7 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
                     this.uniqueIdentifier,
                     documentUniqueIdentifier,
                     response.data.documentVersion,
+                    supportedFeatures,
                     properties,
                     {},
                 ),
@@ -159,6 +160,7 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
                 headers: buildHeader(this._authentication),
             });
 
+            const supportedFeatures: IMBRICATE_DOCUMENT_FEATURE[] = response.data.supportedFeatures;
             const properties: DocumentProperties = response.data.properties;
             const annotations: DocumentAnnotations = response.data.annotations;
 
@@ -168,6 +170,7 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
                 this.uniqueIdentifier,
                 uniqueIdentifier,
                 response.data.documentVersion,
+                supportedFeatures,
                 properties,
                 annotations,
             );
@@ -229,6 +232,7 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
             });
 
             const documents = response.data.documents;
+            const supportedFeatures: IMBRICATE_DOCUMENT_FEATURE[] = response.data.supportedFeatures;
 
             const result: IImbricateDocument[] = documents.map((document: any) => {
 
@@ -236,8 +240,9 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
                     this._basePath,
                     this._authentication,
                     this.uniqueIdentifier,
-                    document.uniqueIdentifier,
+                    document.documentUniqueIdentifier,
                     document.documentVersion,
+                    supportedFeatures,
                     document.properties,
                     document.annotations,
                 );

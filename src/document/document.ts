@@ -4,7 +4,7 @@
  * @description Document
  */
 
-import { DocumentAnnotationValue, DocumentAnnotations, DocumentEditRecord, DocumentProperties, DocumentPropertyKey, DocumentPropertyValue, IImbricateDocument, IMBRICATE_PROPERTY_TYPE, ImbricateDocumentAddEditRecordsOutcome, ImbricateDocumentDeleteAnnotationOutcome, ImbricateDocumentFullFeatureBase, ImbricateDocumentGetEditRecordsOutcome, ImbricateDocumentPutAnnotationOutcome, ImbricateDocumentPutPropertyOutcome, rebuildImbricateDocumentDeleteAnnotationSymbol, rebuildImbricateDocumentGetEditRecordsSymbol, rebuildImbricateDocumentPutAnnotationSymbol, rebuildImbricateDocumentPutPropertySymbol } from "@imbricate/core";
+import { DocumentAnnotationValue, DocumentAnnotations, DocumentEditRecord, DocumentProperties, DocumentPropertyKey, DocumentPropertyValue, IImbricateDocument, IMBRICATE_DOCUMENT_FEATURE, IMBRICATE_PROPERTY_TYPE, ImbricateDocumentAddEditRecordsOutcome, ImbricateDocumentDeleteAnnotationOutcome, ImbricateDocumentFullFeatureBase, ImbricateDocumentGetEditRecordsOutcome, ImbricateDocumentPutAnnotationOutcome, ImbricateDocumentPutPropertyOutcome, rebuildImbricateDocumentDeleteAnnotationSymbol, rebuildImbricateDocumentGetEditRecordsSymbol, rebuildImbricateDocumentPutAnnotationSymbol, rebuildImbricateDocumentPutPropertySymbol } from "@imbricate/core";
 import { ImbricateStackAPIAuthentication } from "../definition";
 import { axiosClient } from "../util/client";
 import { getAxiosErrorSymbol } from "../util/error";
@@ -19,6 +19,7 @@ export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase 
         databaseUniqueIdentifier: string,
         documentUniqueIdentifier: string,
         documentVersion: string,
+        supportedFeatures: IMBRICATE_DOCUMENT_FEATURE[],
         properties: DocumentProperties,
         annotations: DocumentAnnotations,
     ): ImbricateStackAPIDocument {
@@ -28,6 +29,7 @@ export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase 
             authentication,
             databaseUniqueIdentifier,
             documentUniqueIdentifier,
+            supportedFeatures,
             documentVersion,
             properties,
             annotations,
@@ -44,11 +46,14 @@ export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase 
     private _properties: DocumentProperties;
     private _annotations: DocumentAnnotations;
 
+    public readonly supportedFeatures: IMBRICATE_DOCUMENT_FEATURE[];
+
     private constructor(
         basePath: string,
         authentication: ImbricateStackAPIAuthentication,
         databaseUniqueIdentifier: string,
         documentUniqueIdentifier: string,
+        supportedFeatures: IMBRICATE_DOCUMENT_FEATURE[],
         documentVersion: string,
         properties: DocumentProperties,
         annotations: DocumentAnnotations,
@@ -65,6 +70,8 @@ export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase 
 
         this._properties = properties;
         this._annotations = annotations;
+
+        this.supportedFeatures = supportedFeatures;
     }
 
     public get uniqueIdentifier(): string {

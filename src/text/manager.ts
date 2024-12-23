@@ -4,7 +4,7 @@
  * @description Manager
  */
 
-import { IImbricateText, IImbricateTextManager, ImbricateAuthor, ImbricateTextManagerCreateTextOutcome, ImbricateTextManagerFullFeatureBase, ImbricateTextManagerGetTextOutcome, rebuildImbricateTextManagerCreateTextSymbol, rebuildImbricateTextManagerGetTextSymbol } from "@imbricate/core";
+import { IImbricateText, IImbricateTextManager, IMBRICATE_TEXT_FEATURE, ImbricateAuthor, ImbricateTextManagerCreateTextOutcome, ImbricateTextManagerFullFeatureBase, ImbricateTextManagerGetTextOutcome, rebuildImbricateTextManagerCreateTextSymbol, rebuildImbricateTextManagerGetTextSymbol } from "@imbricate/core";
 import { ImbricateStackAPIAuthentication } from "../definition";
 import { axiosClient } from "../util/client";
 import { getAxiosErrorSymbol } from "../util/error";
@@ -53,11 +53,14 @@ export class ImbricateStackAPITextManager extends ImbricateTextManagerFullFeatur
                 headers: buildHeader(this._authentication),
             });
 
+            const supportedFeatures: IMBRICATE_TEXT_FEATURE[] = response.data.supportedFeatures;
+
             const content: string = response.data.content;
             const author: ImbricateAuthor = response.data.author;
 
             const text: IImbricateText = ImbricateStackAPIText.createFromContent(
                 uniqueIdentifier,
+                supportedFeatures,
                 content,
                 author,
             );
@@ -87,11 +90,14 @@ export class ImbricateStackAPITextManager extends ImbricateTextManagerFullFeatur
                 headers: buildHeader(this._authentication),
             });
 
+            const supportedFeatures: IMBRICATE_TEXT_FEATURE[] = response.data.supportedFeatures;
+
             const textUniqueIdentifier: string = response.data.textUniqueIdentifier;
             const author: ImbricateAuthor = response.data.author;
 
             const text: IImbricateText = await ImbricateStackAPIText.create(
                 textUniqueIdentifier,
+                supportedFeatures,
                 content,
                 author,
             );
