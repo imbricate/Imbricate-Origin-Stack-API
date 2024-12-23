@@ -4,7 +4,7 @@
  * @description Database
  */
 
-import { DatabaseAnnotationValue, DatabaseAnnotations, DatabaseEditRecord, DocumentAnnotations, DocumentProperties, IImbricateDocument, ImbricateDatabaseAddEditRecordsOutcome, ImbricateDatabaseCountDocumentsOutcome, ImbricateDatabaseCreateDocumentOutcome, ImbricateDatabaseDeleteAnnotationOutcome, ImbricateDatabaseFullFeatureBase, ImbricateDatabaseGetDocumentOutcome, ImbricateDatabaseGetEditRecordsOutcome, ImbricateDatabasePutAnnotationOutcome, ImbricateDatabasePutSchemaOutcome, ImbricateDatabaseQueryDocumentsOutcome, ImbricateDatabaseRemoveDocumentOutcome, ImbricateDocumentQuery, rebuildImbricateDatabaseCountDocumentsSymbol, rebuildImbricateDatabaseCreateDocumentSymbol, rebuildImbricateDatabaseDeleteAnnotationSymbol, rebuildImbricateDatabaseGetDocumentSymbol, rebuildImbricateDatabaseGetEditRecordsSymbol, rebuildImbricateDatabasePutAnnotationSymbol, rebuildImbricateDatabasePutSchemaSymbol, rebuildImbricateDatabaseQueryDocumentsSymbol, rebuildImbricateDatabaseRemoveDocumentSymbol } from "@imbricate/core";
+import { DatabaseAnnotationValue, DatabaseAnnotations, DatabaseEditRecord, DocumentAnnotations, DocumentProperties, IImbricateDocument, IMBRICATE_DATABASE_FEATURE, ImbricateDatabaseAddEditRecordsOutcome, ImbricateDatabaseCountDocumentsOutcome, ImbricateDatabaseCreateDocumentOutcome, ImbricateDatabaseDeleteAnnotationOutcome, ImbricateDatabaseFullFeatureBase, ImbricateDatabaseGetDocumentOutcome, ImbricateDatabaseGetEditRecordsOutcome, ImbricateDatabasePutAnnotationOutcome, ImbricateDatabasePutSchemaOutcome, ImbricateDatabaseQueryDocumentsOutcome, ImbricateDatabaseRemoveDocumentOutcome, ImbricateDocumentQuery, rebuildImbricateDatabaseCountDocumentsSymbol, rebuildImbricateDatabaseCreateDocumentSymbol, rebuildImbricateDatabaseDeleteAnnotationSymbol, rebuildImbricateDatabaseGetDocumentSymbol, rebuildImbricateDatabaseGetEditRecordsSymbol, rebuildImbricateDatabasePutAnnotationSymbol, rebuildImbricateDatabasePutSchemaSymbol, rebuildImbricateDatabaseQueryDocumentsSymbol, rebuildImbricateDatabaseRemoveDocumentSymbol } from "@imbricate/core";
 import { IImbricateDatabase } from "@imbricate/core/database/interface";
 import { ImbricateDatabaseSchema } from "@imbricate/core/database/schema";
 import { ImbricateStackAPIAuthentication } from "../definition";
@@ -22,6 +22,7 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
         uniqueIdentifier: string,
         databaseName: string,
         databaseVersion: string,
+        supportedFeatures: IMBRICATE_DATABASE_FEATURE[],
         schema: ImbricateDatabaseSchema,
         annotations: DatabaseAnnotations,
     ): ImbricateStackAPIDatabase {
@@ -32,6 +33,7 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
             uniqueIdentifier,
             databaseName,
             databaseVersion,
+            supportedFeatures,
             schema,
             annotations,
         );
@@ -44,6 +46,8 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
     public readonly databaseName: string;
     public readonly databaseVersion: string;
 
+    public readonly supportedFeatures: IMBRICATE_DATABASE_FEATURE[];
+
     public schema: ImbricateDatabaseSchema;
     public annotations: DatabaseAnnotations;
 
@@ -53,6 +57,7 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
         uniqueIdentifier: string,
         databaseName: string,
         databaseVersion: string,
+        supportedFeatures: IMBRICATE_DATABASE_FEATURE[],
         schema: ImbricateDatabaseSchema,
         annotations: DatabaseAnnotations,
     ) {
@@ -65,6 +70,8 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
         this.uniqueIdentifier = uniqueIdentifier;
         this.databaseName = databaseName;
         this.databaseVersion = databaseVersion;
+
+        this.supportedFeatures = supportedFeatures;
 
         this.schema = schema;
         this.annotations = annotations;

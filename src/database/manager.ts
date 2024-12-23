@@ -61,6 +61,7 @@ export class ImbricateStackAPIDatabaseManager extends ImbricateDatabaseManagerFu
                         database.databaseUniqueIdentifier,
                         database.databaseName,
                         database.databaseVersion,
+                        database.supportedFeatures,
                         database.databaseSchema,
                         database.databaseAnnotations,
                     );
@@ -90,6 +91,7 @@ export class ImbricateStackAPIDatabaseManager extends ImbricateDatabaseManagerFu
 
             const databaseName = response.data.databaseName;
             const databaseVersion = response.data.databaseVersion;
+            const supportedFeatures = response.data.supportedFeatures;
             const databaseSchema = response.data.databaseSchema;
             const databaseAnnotations = response.data.databaseAnnotations;
 
@@ -100,6 +102,7 @@ export class ImbricateStackAPIDatabaseManager extends ImbricateDatabaseManagerFu
                 uniqueIdentifier,
                 databaseName,
                 databaseVersion,
+                supportedFeatures,
                 databaseSchema,
                 databaseAnnotations,
             );
@@ -134,6 +137,7 @@ export class ImbricateStackAPIDatabaseManager extends ImbricateDatabaseManagerFu
 
             const databaseUniqueIdentifier = response.data.databaseUniqueIdentifier;
             const databaseVersion = response.data.databaseVersion;
+            const supportedFeatures = response.data.supportedFeatures;
             const responseSchema = response.data.schema;
             const responseAnnotations = response.data.annotations;
 
@@ -144,6 +148,7 @@ export class ImbricateStackAPIDatabaseManager extends ImbricateDatabaseManagerFu
                 databaseUniqueIdentifier,
                 databaseName,
                 databaseVersion,
+                supportedFeatures,
                 responseSchema,
                 responseAnnotations,
             );
