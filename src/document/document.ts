@@ -4,7 +4,7 @@
  * @description Document
  */
 
-import { DocumentAnnotationValue, DocumentAnnotations, DocumentEditRecord, DocumentProperties, DocumentPropertyKey, DocumentPropertyValue, IImbricateDocument, IMBRICATE_DOCUMENT_FEATURE, IMBRICATE_PROPERTY_TYPE, ImbricateDocumentAddEditRecordsOutcome, ImbricateDocumentDeleteAnnotationOutcome, ImbricateDocumentFullFeatureBase, ImbricateDocumentGetEditRecordsOutcome, ImbricateDocumentPutAnnotationOutcome, ImbricateDocumentPutPropertyOutcome, rebuildImbricateDocumentDeleteAnnotationSymbol, rebuildImbricateDocumentGetEditRecordsSymbol, rebuildImbricateDocumentPutAnnotationSymbol, rebuildImbricateDocumentPutPropertySymbol } from "@imbricate/core";
+import { DocumentAnnotationValue, DocumentAnnotations, DocumentEditRecord, DocumentProperties, IImbricateDocument, IMBRICATE_DOCUMENT_FEATURE, ImbricateDocumentAddEditRecordsOutcome, ImbricateDocumentDeleteAnnotationOutcome, ImbricateDocumentFullFeatureBase, ImbricateDocumentGetEditRecordsOutcome, ImbricateDocumentPutAnnotationOutcome, ImbricateDocumentPutPropertyOutcome, rebuildImbricateDocumentDeleteAnnotationSymbol, rebuildImbricateDocumentGetEditRecordsSymbol, rebuildImbricateDocumentPutAnnotationSymbol, rebuildImbricateDocumentPutPropertySymbol } from "@imbricate/core";
 import { ImbricateStackAPIAuthentication } from "../definition";
 import { axiosClient } from "../util/client";
 import { getAxiosErrorSymbol } from "../util/error";
@@ -90,18 +90,37 @@ export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase 
         return this._annotations;
     }
 
-    public async putProperty(
-        key: DocumentPropertyKey,
-        value: DocumentPropertyValue<IMBRICATE_PROPERTY_TYPE>,
+    public async mergeProperties(
+        properties: DocumentProperties,
     ): Promise<ImbricateDocumentPutPropertyOutcome> {
 
-        return await this.putProperties({
-            ...this.properties,
-            [key]: value,
-        });
+        try {
+
+            const response = await axiosClient.post(joinUrl(
+                this._basePath,
+                "database",
+                this._databaseUniqueIdentifier,
+                "document",
+                this._documentUniqueIdentifier,
+                "merge",
+            ), {
+                properties,
+            }, {
+                headers: buildHeader(this._authentication),
+            });
+
+            return {
+                editRecords: response.data.editRecords,
+            };
+        } catch (error) {
+
+            return rebuildImbricateDocumentPutPropertySymbol(
+                getAxiosErrorSymbol(error),
+            );
+        }
     }
 
-    public async putProperties(
+    public async replaceProperties(
         properties: DocumentProperties,
     ): Promise<ImbricateDocumentPutPropertyOutcome> {
 
