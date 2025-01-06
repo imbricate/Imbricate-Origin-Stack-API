@@ -77,7 +77,7 @@ export class ImbricateStackAPIOrigin extends ImbricateOriginFullFeatureBase impl
             });
 
             return {
-                items: response.data.items,
+                items: response.data.result.items,
             };
         } catch (error) {
 
