@@ -250,6 +250,7 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
 
             return {
                 documents: result,
+                count: response.data.count,
             };
         } catch (error) {
 

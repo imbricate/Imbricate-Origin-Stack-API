@@ -4,7 +4,7 @@
  * @description Manager
  */
 
-import { IImbricateDatabaseManager, ImbricateDatabaseManagerCreateDatabaseOutcome, ImbricateDatabaseManagerFullFeatureBase, ImbricateDatabaseManagerGetDatabaseOutcome, ImbricateDatabaseManagerListDatabasesOutcome, ImbricateDatabaseManagerRemoveDatabaseOutcome, ImbricateDatabaseSchemaForCreation, rebuildImbricateDatabaseManagerCreateDatabaseSymbol, rebuildImbricateDatabaseManagerGetDatabaseSymbol, rebuildImbricateDatabaseManagerListDatabasesSymbol, rebuildImbricateDatabaseManagerRemoveDatabaseSymbol } from "@imbricate/core";
+import { IImbricateDatabaseManager, ImbricateDatabaseManagerCreateDatabaseOutcome, ImbricateDatabaseManagerFullFeatureBase, ImbricateDatabaseManagerGetDatabaseOutcome, ImbricateDatabaseManagerQueryDatabasesOutcome, ImbricateDatabaseManagerRemoveDatabaseOutcome, ImbricateDatabaseQuery, ImbricateDatabaseSchemaForCreation, rebuildImbricateDatabaseManagerCreateDatabaseSymbol, rebuildImbricateDatabaseManagerGetDatabaseSymbol, rebuildImbricateDatabaseManagerQueryDatabasesSymbol, rebuildImbricateDatabaseManagerRemoveDatabaseSymbol } from "@imbricate/core";
 import { ImbricateStackAPIAuthentication } from "../definition";
 import { axiosClient } from "../util/client";
 import { getAxiosErrorSymbol } from "../util/error";
@@ -39,14 +39,18 @@ export class ImbricateStackAPIDatabaseManager extends ImbricateDatabaseManagerFu
         this._authentication = authentication;
     }
 
-    public async listDatabases(): Promise<ImbricateDatabaseManagerListDatabasesOutcome> {
+    public async queryDatabases(
+        query: ImbricateDatabaseQuery,
+    ): Promise<ImbricateDatabaseManagerQueryDatabasesOutcome> {
 
         try {
 
-            const response = await axiosClient.get(joinUrl(
+            const response = await axiosClient.post(joinUrl(
                 this._basePath,
-                "list-database",
+                "query-database",
             ), {
+                query,
+            }, {
                 headers: buildHeader(this._authentication),
             });
 
@@ -66,10 +70,11 @@ export class ImbricateStackAPIDatabaseManager extends ImbricateDatabaseManagerFu
                         database.databaseAnnotations,
                     );
                 }),
+                count: response.data.count,
             };
         } catch (error) {
 
-            return rebuildImbricateDatabaseManagerListDatabasesSymbol(
+            return rebuildImbricateDatabaseManagerQueryDatabasesSymbol(
                 getAxiosErrorSymbol(error),
             );
         }
