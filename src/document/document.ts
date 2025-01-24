@@ -4,12 +4,14 @@
  * @description Document
  */
 
-import { DocumentAnnotationValue, DocumentAnnotations, DocumentEditRecord, DocumentProperties, IImbricateDocument, IMBRICATE_DOCUMENT_FEATURE, ImbricateDocumentAddEditRecordsOutcome, ImbricateDocumentDeleteAnnotationOutcome, ImbricateDocumentFullFeatureBase, ImbricateDocumentGetEditRecordsOutcome, ImbricateDocumentPutAnnotationOutcome, ImbricateDocumentPutPropertyOutcome, rebuildImbricateDocumentDeleteAnnotationSymbol, rebuildImbricateDocumentGetEditRecordsSymbol, rebuildImbricateDocumentPutAnnotationSymbol, rebuildImbricateDocumentPutPropertySymbol } from "@imbricate/core";
+import { DocumentAnnotationValue, DocumentAnnotations, DocumentEditRecord, IImbricateDocument, IMBRICATE_DOCUMENT_FEATURE, ImbricateDocumentAddEditRecordsOutcome, ImbricateDocumentDeleteAnnotationOutcome, ImbricateDocumentFullFeatureBase, ImbricateDocumentGetEditRecordsOutcome, ImbricateDocumentGetPropertiesOutcome, ImbricateDocumentGetPropertyOutcome, ImbricateDocumentPutAnnotationOutcome, ImbricateDocumentPutPropertyOutcome, ImbricatePropertiesDrafter, ImbricatePropertyKey, ImbricatePropertyRecord, S_Document_GetProperty_NotFound, rebuildImbricateDocumentDeleteAnnotationSymbol, rebuildImbricateDocumentGetEditRecordsSymbol, rebuildImbricateDocumentPutAnnotationSymbol, rebuildImbricateDocumentPutPropertySymbol } from "@imbricate/core";
 import { ImbricateStackAPIAuthentication } from "../definition";
 import { axiosClient } from "../util/client";
 import { getAxiosErrorSymbol } from "../util/error";
 import { buildHeader } from "../util/header";
 import { joinUrl } from "../util/path-joiner";
+import { draftImbricateProperties } from "../property/draft";
+import { propertyRecordToInstanceRecord } from "../property/parse";
 
 export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase implements IImbricateDocument {
 
@@ -20,7 +22,7 @@ export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase 
         documentUniqueIdentifier: string,
         documentVersion: string,
         supportedFeatures: IMBRICATE_DOCUMENT_FEATURE[],
-        properties: DocumentProperties,
+        properties: ImbricatePropertyRecord,
         annotations: DocumentAnnotations,
     ): ImbricateStackAPIDocument {
 
@@ -43,7 +45,7 @@ export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase 
 
     private _documentVersion: string;
 
-    private _properties: DocumentProperties;
+    private _properties: ImbricatePropertyRecord;
     private _annotations: DocumentAnnotations;
 
     public readonly supportedFeatures: IMBRICATE_DOCUMENT_FEATURE[];
@@ -55,7 +57,7 @@ export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase 
         documentUniqueIdentifier: string,
         supportedFeatures: IMBRICATE_DOCUMENT_FEATURE[],
         documentVersion: string,
-        properties: DocumentProperties,
+        properties: ImbricatePropertyRecord,
         annotations: DocumentAnnotations,
     ) {
 
@@ -82,17 +84,35 @@ export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase 
         return this._documentVersion;
     }
 
-    public get properties(): DocumentProperties {
-        return this._properties;
-    }
-
     public get annotations(): DocumentAnnotations {
         return this._annotations;
     }
 
+    public getProperty(key: ImbricatePropertyKey): ImbricateDocumentGetPropertyOutcome {
+
+        const property = this._properties[key];
+
+        if (!property) {
+            return S_Document_GetProperty_NotFound;
+        }
+
+        return {
+            property,
+        };
+    }
+
+    public getProperties(): ImbricateDocumentGetPropertiesOutcome {
+
+        return {
+            properties: this._properties,
+        };
+    }
+
     public async mergeProperties(
-        properties: DocumentProperties,
+        propertiesDrafter: ImbricatePropertiesDrafter,
     ): Promise<ImbricateDocumentPutPropertyOutcome> {
+
+        const properties = draftImbricateProperties(propertiesDrafter);
 
         try {
 
@@ -104,7 +124,7 @@ export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase 
                 this._documentUniqueIdentifier,
                 "merge",
             ), {
-                properties,
+                properties: propertyRecordToInstanceRecord(properties),
             }, {
                 headers: buildHeader(this._authentication),
             });
@@ -121,8 +141,10 @@ export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase 
     }
 
     public async replaceProperties(
-        properties: DocumentProperties,
+        propertiesDrafter: ImbricatePropertiesDrafter,
     ): Promise<ImbricateDocumentPutPropertyOutcome> {
+
+        const properties = draftImbricateProperties(propertiesDrafter);
 
         try {
 
@@ -133,7 +155,7 @@ export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase 
                 "document",
                 this._documentUniqueIdentifier,
             ), {
-                properties,
+                properties: propertyRecordToInstanceRecord(properties),
             }, {
                 headers: buildHeader(this._authentication),
             });

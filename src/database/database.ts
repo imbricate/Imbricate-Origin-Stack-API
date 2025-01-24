@@ -4,11 +4,13 @@
  * @description Database
  */
 
-import { DatabaseAnnotationValue, DatabaseAnnotations, DatabaseEditRecord, DocumentAnnotations, DocumentProperties, IImbricateDocument, IMBRICATE_DATABASE_FEATURE, IMBRICATE_DOCUMENT_FEATURE, ImbricateDatabaseAddEditRecordsOutcome, ImbricateDatabaseCountDocumentsOutcome, ImbricateDatabaseCreateDocumentOutcome, ImbricateDatabaseDeleteAnnotationOutcome, ImbricateDatabaseFullFeatureBase, ImbricateDatabaseGetDocumentOutcome, ImbricateDatabaseGetEditRecordsOutcome, ImbricateDatabasePutAnnotationOutcome, ImbricateDatabasePutSchemaOutcome, ImbricateDatabaseQueryDocumentsOutcome, ImbricateDatabaseRemoveDocumentOutcome, ImbricateDocumentQuery, rebuildImbricateDatabaseCountDocumentsSymbol, rebuildImbricateDatabaseCreateDocumentSymbol, rebuildImbricateDatabaseDeleteAnnotationSymbol, rebuildImbricateDatabaseGetDocumentSymbol, rebuildImbricateDatabaseGetEditRecordsSymbol, rebuildImbricateDatabasePutAnnotationSymbol, rebuildImbricateDatabasePutSchemaSymbol, rebuildImbricateDatabaseQueryDocumentsSymbol, rebuildImbricateDatabaseRemoveDocumentSymbol } from "@imbricate/core";
+import { DatabaseAnnotationValue, DatabaseAnnotations, DatabaseEditRecord, DocumentAnnotations, IImbricateDocument, IMBRICATE_DATABASE_FEATURE, IMBRICATE_DOCUMENT_FEATURE, ImbricateDatabaseAddEditRecordsOutcome, ImbricateDatabaseCountDocumentsOutcome, ImbricateDatabaseCreateDocumentOutcome, ImbricateDatabaseDeleteAnnotationOutcome, ImbricateDatabaseFullFeatureBase, ImbricateDatabaseGetDocumentOutcome, ImbricateDatabaseGetEditRecordsOutcome, ImbricateDatabasePutAnnotationOutcome, ImbricateDatabasePutSchemaOutcome, ImbricateDatabaseQueryDocumentsOutcome, ImbricateDatabaseRemoveDocumentOutcome, ImbricateDocumentQuery, ImbricatePropertiesDrafter, ImbricatePropertyRecord, rebuildImbricateDatabaseCountDocumentsSymbol, rebuildImbricateDatabaseCreateDocumentSymbol, rebuildImbricateDatabaseDeleteAnnotationSymbol, rebuildImbricateDatabaseGetDocumentSymbol, rebuildImbricateDatabaseGetEditRecordsSymbol, rebuildImbricateDatabasePutAnnotationSymbol, rebuildImbricateDatabasePutSchemaSymbol, rebuildImbricateDatabaseQueryDocumentsSymbol, rebuildImbricateDatabaseRemoveDocumentSymbol } from "@imbricate/core";
 import { IImbricateDatabase } from "@imbricate/core/database/interface";
 import { ImbricateDatabaseSchema } from "@imbricate/core/database/schema";
 import { ImbricateStackAPIAuthentication } from "../definition";
 import { ImbricateStackAPIDocument } from "../document/document";
+import { draftImbricateProperties } from "../property/draft";
+import { instanceRecordToPropertyRecord, propertyRecordToInstanceRecord } from "../property/parse";
 import { axiosClient } from "../util/client";
 import { getAxiosErrorSymbol } from "../util/error";
 import { buildHeader } from "../util/header";
@@ -106,8 +108,10 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
     }
 
     public async createDocument(
-        properties: DocumentProperties,
+        propertiesDraft: ImbricatePropertiesDrafter,
     ): Promise<ImbricateDatabaseCreateDocumentOutcome> {
+
+        const properties = draftImbricateProperties(propertiesDraft);
 
         try {
 
@@ -117,13 +121,14 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
                 this.uniqueIdentifier,
                 "create-document",
             ), {
-                properties,
+                properties: propertyRecordToInstanceRecord(properties),
             }, {
                 headers: buildHeader(this._authentication),
             });
 
             const documentUniqueIdentifier: string = response.data.documentUniqueIdentifier;
             const supportedFeatures: IMBRICATE_DOCUMENT_FEATURE[] = response.data.supportedFeatures;
+
             return {
                 document: ImbricateStackAPIDocument.create(
                     this._basePath,
@@ -161,7 +166,7 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
             });
 
             const supportedFeatures: IMBRICATE_DOCUMENT_FEATURE[] = response.data.supportedFeatures;
-            const properties: DocumentProperties = response.data.properties;
+            const properties: ImbricatePropertyRecord = instanceRecordToPropertyRecord(response.data.properties);
             const annotations: DocumentAnnotations = response.data.annotations;
 
             const document = ImbricateStackAPIDocument.create(
