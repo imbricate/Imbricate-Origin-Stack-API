@@ -15,6 +15,7 @@ import { axiosClient } from "../util/client";
 import { getAxiosErrorSymbol } from "../util/error";
 import { buildHeader } from "../util/header";
 import { joinUrl } from "../util/path-joiner";
+import { ImbricateStackAPIProperty } from "../property/property";
 
 export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase implements IImbricateDatabase {
 
@@ -237,9 +238,26 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
             });
 
             const documents = response.data.documents;
-            const supportedFeatures: IMBRICATE_DOCUMENT_FEATURE[] = response.data.supportedFeatures;
 
             const result: IImbricateDocument[] = documents.map((document: any) => {
+
+                const supportedFeatures: IMBRICATE_DOCUMENT_FEATURE[] = document.supportedFeatures;
+
+                const propertiesRecord: ImbricatePropertyRecord = Object.keys(
+                    document.properties,
+                ).reduce((
+                    current: ImbricatePropertyRecord,
+                    key: string,
+                ) => {
+                    return {
+                        ...current,
+                        [key]: ImbricateStackAPIProperty.create(
+                            key,
+                            document.properties[key].type,
+                            document.properties[key].value,
+                        ),
+                    };
+                }, {});
 
                 return ImbricateStackAPIDocument.create(
                     this._basePath,
@@ -248,7 +266,7 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
                     document.documentUniqueIdentifier,
                     document.documentVersion,
                     supportedFeatures,
-                    document.properties,
+                    propertiesRecord,
                     document.annotations,
                 );
             });
