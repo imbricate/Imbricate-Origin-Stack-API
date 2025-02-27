@@ -78,6 +78,7 @@ export class ImbricateStackAPIStaticManager extends ImbricateStaticManagerFullFe
             );
         }
     }
+
     public async createInBase64(
         base64Content: string,
         mimeType: IMBRICATE_STATIC_MIME_TYPE,
@@ -124,12 +125,16 @@ export class ImbricateStackAPIStaticManager extends ImbricateStaticManagerFullFe
         staticUniqueIdentifier: string,
     ): Promise<ImbricateStaticManagerGetStaticUriOutcome> {
 
+        const uri: string = joinUrl(
+            this._basePath,
+            "static",
+            staticUniqueIdentifier,
+        );
+
+        const securityAppendedUri: string = `${uri}?authentication=${this._authentication.value}`;
+
         return {
-            uri: joinUrl(
-                this._basePath,
-                "static",
-                staticUniqueIdentifier,
-            ),
+            uri: securityAppendedUri,
         };
     }
 }

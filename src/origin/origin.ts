@@ -6,6 +6,7 @@
 
 import { IImbricateDatabaseManager, IImbricateOrigin, IImbricateStaticManager, ImbricateOriginFullFeatureBase, ImbricateOriginSearchOutcome, rebuildImbricateOriginSearchSymbol } from "@imbricate/core";
 import { ImbricateStackAPIDatabaseManager } from "../database/manager";
+import { ImbricateStackAPIStaticManager } from "../static/manager";
 import { ImbricateStackAPITextManager } from "../text/manager";
 import { axiosClient } from "../util/client";
 import { digestString } from "../util/digest";
@@ -58,7 +59,10 @@ export class ImbricateStackAPIOrigin extends ImbricateOriginFullFeatureBase impl
 
     public getStaticManager(): IImbricateStaticManager {
 
-        throw new Error("Method not implemented.");
+        return ImbricateStackAPIStaticManager.create(
+            this.payloads.basePath,
+            this.payloads.authentication,
+        );
     }
 
     public async search(
