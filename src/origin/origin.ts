@@ -4,7 +4,7 @@
  * @description Origin
  */
 
-import { IImbricateDatabaseManager, IImbricateOrigin, IImbricateStaticManager, ImbricateOriginFullFeatureBase, ImbricateOriginSearchOutcome, rebuildImbricateOriginSearchSymbol } from "@imbricate/core";
+import { IImbricateDatabaseManager, IImbricateOrigin, IImbricateStaticManager, ImbricateCommonQueryOriginActionsOutcome, ImbricateCommonQueryOriginActionsQuery, ImbricateOriginActionInput, ImbricateOriginActionOutcome, ImbricateOriginFullFeatureWithActionBase, ImbricateOriginSearchOutcome, rebuildImbricateCommonQueryOriginActionsSymbol, rebuildImbricateOriginActionOutcomeSymbol, rebuildImbricateOriginSearchSymbol } from "@imbricate/core";
 import { ImbricateStackAPIDatabaseManager } from "../database/manager";
 import { ImbricateStackAPIStaticManager } from "../static/manager";
 import { ImbricateStackAPITextManager } from "../text/manager";
@@ -14,7 +14,7 @@ import { getAxiosErrorSymbol } from "../util/error";
 import { buildHeader } from "../util/header";
 import { joinUrl } from "../util/path-joiner";
 
-export class ImbricateStackAPIOrigin extends ImbricateOriginFullFeatureBase implements IImbricateOrigin {
+export class ImbricateStackAPIOrigin extends ImbricateOriginFullFeatureWithActionBase implements IImbricateOrigin {
 
     public static create(
         payloads: Record<string, any>,
@@ -86,6 +86,62 @@ export class ImbricateStackAPIOrigin extends ImbricateOriginFullFeatureBase impl
         } catch (error) {
 
             return rebuildImbricateOriginSearchSymbol(
+                getAxiosErrorSymbol(error),
+            );
+        }
+    }
+
+    public async queryOriginActions(
+        query: ImbricateCommonQueryOriginActionsQuery,
+    ): Promise<ImbricateCommonQueryOriginActionsOutcome> {
+
+        try {
+
+            const response = await axiosClient.post(joinUrl(
+                this.payloads.basePath,
+                "query-origin-actions",
+            ), {
+                query,
+            }, {
+                headers: buildHeader(this.payloads.authentication),
+            });
+
+            return {
+                actions: response.data.result.actions,
+                count: response.data.result.count,
+            };
+        } catch (error) {
+
+            return rebuildImbricateCommonQueryOriginActionsSymbol(
+                getAxiosErrorSymbol(error),
+            );
+        }
+    }
+
+    public async executeOriginAction(
+        input: ImbricateOriginActionInput,
+    ): Promise<ImbricateOriginActionOutcome> {
+
+        try {
+
+            const response = await axiosClient.post(joinUrl(
+                this.payloads.basePath,
+                "execute-origin-action",
+            ), {
+                actionIdentifier: input.actionIdentifier,
+                parameters: input.parameters,
+            }, {
+                headers: buildHeader(this.payloads.authentication),
+            });
+
+            return {
+                response: response.data.response,
+                outputs: response.data.outputs,
+                references: response.data.references,
+            };
+        } catch (error) {
+
+            return rebuildImbricateOriginActionOutcomeSymbol(
                 getAxiosErrorSymbol(error),
             );
         }
