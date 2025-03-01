@@ -4,16 +4,16 @@
  * @description Document
  */
 
-import { DocumentAnnotationValue, DocumentAnnotations, DocumentEditRecord, IImbricateDocument, IMBRICATE_DOCUMENT_FEATURE, ImbricateDocumentAddEditRecordsOutcome, ImbricateDocumentDeleteAnnotationOutcome, ImbricateDocumentFullFeatureBase, ImbricateDocumentGetEditRecordsOutcome, ImbricateDocumentGetPropertiesOutcome, ImbricateDocumentGetPropertyOutcome, ImbricateDocumentPutAnnotationOutcome, ImbricateDocumentPutPropertyOutcome, ImbricatePropertiesDrafter, ImbricatePropertyKey, ImbricatePropertyRecord, S_Document_GetProperty_NotFound, rebuildImbricateDocumentDeleteAnnotationSymbol, rebuildImbricateDocumentGetEditRecordsSymbol, rebuildImbricateDocumentPutAnnotationSymbol, rebuildImbricateDocumentPutPropertySymbol } from "@imbricate/core";
+import { DocumentAnnotationValue, DocumentAnnotations, DocumentEditRecord, IImbricateDocument, IMBRICATE_DOCUMENT_FEATURE, ImbricateCommonQueryOriginActionsOutcome, ImbricateCommonQueryOriginActionsQuery, ImbricateDocumentAddEditRecordsOutcome, ImbricateDocumentDeleteAnnotationOutcome, ImbricateDocumentFullFeatureWithActionBase, ImbricateDocumentGetEditRecordsOutcome, ImbricateDocumentGetPropertiesOutcome, ImbricateDocumentGetPropertyOutcome, ImbricateDocumentPutAnnotationOutcome, ImbricateDocumentPutPropertyOutcome, ImbricateOriginActionInput, ImbricateOriginActionOutcome, ImbricatePropertiesDrafter, ImbricatePropertyKey, ImbricatePropertyRecord, S_Document_GetProperty_NotFound, rebuildImbricateCommonQueryOriginActionsSymbol, rebuildImbricateDocumentDeleteAnnotationSymbol, rebuildImbricateDocumentGetEditRecordsSymbol, rebuildImbricateDocumentPutAnnotationSymbol, rebuildImbricateDocumentPutPropertySymbol, rebuildImbricateOriginActionOutcomeSymbol } from "@imbricate/core";
 import { ImbricateStackAPIAuthentication } from "../definition";
+import { draftImbricateProperties } from "../property/draft";
+import { propertyRecordToInstanceRecord } from "../property/parse";
 import { axiosClient } from "../util/client";
 import { getAxiosErrorSymbol } from "../util/error";
 import { buildHeader } from "../util/header";
 import { joinUrl } from "../util/path-joiner";
-import { draftImbricateProperties } from "../property/draft";
-import { propertyRecordToInstanceRecord } from "../property/parse";
 
-export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase implements IImbricateDocument {
+export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureWithActionBase implements IImbricateDocument {
 
     public static create(
         basePath: string,
@@ -265,6 +265,70 @@ export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureBase 
         } catch (error) {
 
             return rebuildImbricateDocumentDeleteAnnotationSymbol(
+                getAxiosErrorSymbol(error),
+            );
+        }
+    }
+
+    public async queryOriginActions(
+        query: ImbricateCommonQueryOriginActionsQuery,
+    ): Promise<ImbricateCommonQueryOriginActionsOutcome> {
+
+        try {
+
+            const response = await axiosClient.post(joinUrl(
+                this._basePath,
+                "database",
+                this._databaseUniqueIdentifier,
+                "document",
+                this._documentUniqueIdentifier,
+                "query-origin-actions",
+            ), {
+                query,
+            }, {
+                headers: buildHeader(this._authentication),
+            });
+
+            return {
+                actions: response.data.result.actions,
+                count: response.data.result.count,
+            };
+        } catch (error) {
+
+            return rebuildImbricateCommonQueryOriginActionsSymbol(
+                getAxiosErrorSymbol(error),
+            );
+        }
+    }
+
+    public async executeOriginAction(
+        input: ImbricateOriginActionInput,
+    ): Promise<ImbricateOriginActionOutcome> {
+
+        try {
+
+            const response = await axiosClient.post(joinUrl(
+                this._basePath,
+                "database",
+                this._databaseUniqueIdentifier,
+                "document",
+                this._documentUniqueIdentifier,
+                "execute-origin-action",
+            ), {
+                actionIdentifier: input.actionIdentifier,
+                parameters: input.parameters,
+            }, {
+                headers: buildHeader(this._authentication),
+            });
+
+            return {
+                response: response.data.response,
+                outputs: response.data.outputs,
+                references: response.data.references,
+            };
+        } catch (error) {
+
+            return rebuildImbricateOriginActionOutcomeSymbol(
                 getAxiosErrorSymbol(error),
             );
         }

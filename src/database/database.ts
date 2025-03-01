@@ -4,20 +4,20 @@
  * @description Database
  */
 
-import { DatabaseAnnotationValue, DatabaseAnnotations, DatabaseEditRecord, DocumentAnnotations, IImbricateDocument, IMBRICATE_DATABASE_FEATURE, IMBRICATE_DOCUMENT_FEATURE, ImbricateDatabaseAddEditRecordsOutcome, ImbricateDatabaseCountDocumentsOutcome, ImbricateDatabaseCreateDocumentOutcome, ImbricateDatabaseDeleteAnnotationOutcome, ImbricateDatabaseFullFeatureBase, ImbricateDatabaseGetDocumentOutcome, ImbricateDatabaseGetEditRecordsOutcome, ImbricateDatabasePutAnnotationOutcome, ImbricateDatabasePutSchemaOutcome, ImbricateDatabaseQueryDocumentsOutcome, ImbricateDatabaseRemoveDocumentOutcome, ImbricateDocumentQuery, ImbricatePropertiesDrafter, ImbricatePropertyRecord, rebuildImbricateDatabaseCountDocumentsSymbol, rebuildImbricateDatabaseCreateDocumentSymbol, rebuildImbricateDatabaseDeleteAnnotationSymbol, rebuildImbricateDatabaseGetDocumentSymbol, rebuildImbricateDatabaseGetEditRecordsSymbol, rebuildImbricateDatabasePutAnnotationSymbol, rebuildImbricateDatabasePutSchemaSymbol, rebuildImbricateDatabaseQueryDocumentsSymbol, rebuildImbricateDatabaseRemoveDocumentSymbol } from "@imbricate/core";
+import { DatabaseAnnotationValue, DatabaseAnnotations, DatabaseEditRecord, DocumentAnnotations, IImbricateDocument, IMBRICATE_DATABASE_FEATURE, IMBRICATE_DOCUMENT_FEATURE, ImbricateCommonQueryOriginActionsOutcome, ImbricateCommonQueryOriginActionsQuery, ImbricateDatabaseAddEditRecordsOutcome, ImbricateDatabaseCountDocumentsOutcome, ImbricateDatabaseCreateDocumentOutcome, ImbricateDatabaseDeleteAnnotationOutcome, ImbricateDatabaseFullFeatureWithActionBase, ImbricateDatabaseGetDocumentOutcome, ImbricateDatabaseGetEditRecordsOutcome, ImbricateDatabasePutAnnotationOutcome, ImbricateDatabasePutSchemaOutcome, ImbricateDatabaseQueryDocumentsOutcome, ImbricateDatabaseRemoveDocumentOutcome, ImbricateDocumentQuery, ImbricateOriginActionInput, ImbricateOriginActionOutcome, ImbricatePropertiesDrafter, ImbricatePropertyRecord, rebuildImbricateCommonQueryOriginActionsSymbol, rebuildImbricateDatabaseCountDocumentsSymbol, rebuildImbricateDatabaseCreateDocumentSymbol, rebuildImbricateDatabaseDeleteAnnotationSymbol, rebuildImbricateDatabaseGetDocumentSymbol, rebuildImbricateDatabaseGetEditRecordsSymbol, rebuildImbricateDatabasePutAnnotationSymbol, rebuildImbricateDatabasePutSchemaSymbol, rebuildImbricateDatabaseQueryDocumentsSymbol, rebuildImbricateDatabaseRemoveDocumentSymbol, rebuildImbricateOriginActionOutcomeSymbol } from "@imbricate/core";
 import { IImbricateDatabase } from "@imbricate/core/database/interface";
 import { ImbricateDatabaseSchema } from "@imbricate/core/database/schema";
 import { ImbricateStackAPIAuthentication } from "../definition";
 import { ImbricateStackAPIDocument } from "../document/document";
 import { draftImbricateProperties } from "../property/draft";
 import { instanceRecordToPropertyRecord, propertyRecordToInstanceRecord } from "../property/parse";
+import { ImbricateStackAPIProperty } from "../property/property";
 import { axiosClient } from "../util/client";
 import { getAxiosErrorSymbol } from "../util/error";
 import { buildHeader } from "../util/header";
 import { joinUrl } from "../util/path-joiner";
-import { ImbricateStackAPIProperty } from "../property/property";
 
-export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase implements IImbricateDatabase {
+export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureWithActionBase implements IImbricateDatabase {
 
     public static create(
         basePath: string,
@@ -398,6 +398,66 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureBase 
         } catch (error) {
 
             return rebuildImbricateDatabaseDeleteAnnotationSymbol(
+                getAxiosErrorSymbol(error),
+            );
+        }
+    }
+
+    public async queryOriginActions(
+        query: ImbricateCommonQueryOriginActionsQuery,
+    ): Promise<ImbricateCommonQueryOriginActionsOutcome> {
+
+        try {
+
+            const response = await axiosClient.post(joinUrl(
+                this._basePath,
+                "database",
+                this.uniqueIdentifier,
+                "query-origin-actions",
+            ), {
+                query,
+            }, {
+                headers: buildHeader(this._authentication),
+            });
+
+            return {
+                actions: response.data.result.actions,
+                count: response.data.result.count,
+            };
+        } catch (error) {
+
+            return rebuildImbricateCommonQueryOriginActionsSymbol(
+                getAxiosErrorSymbol(error),
+            );
+        }
+    }
+
+    public async executeOriginAction(
+        input: ImbricateOriginActionInput,
+    ): Promise<ImbricateOriginActionOutcome> {
+
+        try {
+
+            const response = await axiosClient.post(joinUrl(
+                this._basePath,
+                "database",
+                this.uniqueIdentifier,
+                "execute-origin-action",
+            ), {
+                actionIdentifier: input.actionIdentifier,
+                parameters: input.parameters,
+            }, {
+                headers: buildHeader(this._authentication),
+            });
+
+            return {
+                response: response.data.response,
+                outputs: response.data.outputs,
+                references: response.data.references,
+            };
+        } catch (error) {
+
+            return rebuildImbricateOriginActionOutcomeSymbol(
                 getAxiosErrorSymbol(error),
             );
         }
