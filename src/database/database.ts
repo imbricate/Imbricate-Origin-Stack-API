@@ -421,8 +421,8 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureWithA
             });
 
             return {
-                actions: response.data.result.actions,
-                count: response.data.result.count,
+                actions: response.data.actions,
+                count: response.data.count,
             };
         } catch (error) {
 

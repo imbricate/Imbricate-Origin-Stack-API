@@ -290,8 +290,8 @@ export class ImbricateStackAPIDocument extends ImbricateDocumentFullFeatureWithA
             });
 
             return {
-                actions: response.data.result.actions,
-                count: response.data.result.count,
+                actions: response.data.actions,
+                count: response.data.count,
             };
         } catch (error) {
 
