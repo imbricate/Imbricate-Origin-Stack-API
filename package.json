@@ -1,7 +1,7 @@
 {
   "name": "@imbricate/origin-stack-api",
   "packageManager": "yarn@4.6.0",
-  "version": "3.11.0",
+  "version": "3.12.0",
   "description": "The Stack API origin for Imbricate",
   "scripts": {
     "test": "jest",
