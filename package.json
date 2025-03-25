@@ -39,7 +39,7 @@
     "@babel/preset-typescript": "^7.26.0",
     "@imbricate/core": "^3.27.1",
     "@types/jest": "^29.5.14",
-    "@types/node": "^22.13.11",
+    "@types/node": "^22.13.13",
     "@typescript-eslint/eslint-plugin": "^8.27.0",
     "@typescript-eslint/parser": "^8.27.0",
     "babel-jest": "^29.7.0",
