@@ -18,6 +18,7 @@ export const propertyRecordToInstanceRecord = (propertyRecord: ImbricateProperty
             key: value.propertyKey,
             type: value.propertyType,
             value: value.propertyValue,
+            variant: value.propertyVariant,
         };
 
         return property;
@@ -35,6 +36,7 @@ export const instanceRecordToPropertyRecord = (instanceRecord: InstancePropertyR
             key,
             value.type,
             value.value,
+            value.variant,
         );
 
         return property;

@@ -255,6 +255,7 @@ export class ImbricateStackAPIDatabase extends ImbricateDatabaseFullFeatureWithA
                             key,
                             document.properties[key].type,
                             document.properties[key].value,
+                            document.properties[key].variant,
                         ),
                     };
                 }, {});
